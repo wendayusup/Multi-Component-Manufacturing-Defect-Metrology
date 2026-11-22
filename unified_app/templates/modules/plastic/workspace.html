@@ -1,0 +1,37 @@
+<!-- 
+  =============================================================================
+  MODUL: WORKSPACE INSPEKSI CACAT INJECTION MOLDING PLASTIK (STANDBY)
+  =============================================================================
+  Pemilik: Tim Inspeksi Cacat Plastik
+  Model: Standby (Menunggu penyerahan model dari rekan tim)
+  Berkas terkait modul ini:
+    - Logic Adapter : unified_app/adapters/plastic_adapter.py
+    - Stylesheet    : static/css/plastic.css
+    - Controller JS : static/js/plastic.js
+  =============================================================================
+-->
+<section class="workspace-area" id="workspacePlastic">
+  <div class="standby-card-center">
+    <div class="standby-icon-circle">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px;">
+      Modul Inspeksi Cacat Plastik
+    </h2>
+    <p style="font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 24px;">
+      Arsitektur adaptor integrasi dan kerangka antarmuka telah dikonfigurasi dan siap. Modul ini saat ini berstatus <strong>Standby</strong> menunggu pengiriman bobot model terlatih dan aset dataset dari rekan tim.
+    </p>
+    <div class="plastic-action-buttons">
+      <button type="button" class="btn-primary-action" onclick="switchNavbarModule('ring')" style="padding: 10px 22px; background: #2563EB; color: #FFFFFF;">
+        Buka Inspeksi Ring Bearing
+      </button>
+      <button type="button" class="btn-primary-action" onclick="switchNavbarModule('bearing')" style="padding: 10px 22px; background: #0F172A; color: #FFFFFF;">
+        Buka Inspeksi Coran Logam
+      </button>
+    </div>
+  </div>
+</section>

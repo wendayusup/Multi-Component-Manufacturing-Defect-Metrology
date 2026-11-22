@@ -1,0 +1,58 @@
+/*
+ * =============================================================================
+ * BEARING / CASTING MODULE — styles.css
+ * =============================================================================
+ * Owner : Bearing & Metal Casting Inspection team
+ * Scope : ONLY styles used inside #workspaceBearing and Casting-specific components.
+ *
+ * Base shared styles (navbar, card-box, buttons, modals, dual viewport) are in:
+ *   static/css/base.css — do not duplicate those here.
+ * =============================================================================
+ */
+
+/* -------------------------------------------------------------------------
+ * Sensitivity Segmented Buttons
+ * -------------------------------------------------------------------------*/
+.segmented-switch-sensitivity {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: var(--color-surface-muted);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------------------
+ * Quality Assessment Metrics Row
+ * -------------------------------------------------------------------------*/
+.quality-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.quality-metric-row:last-child {
+  border-bottom: none;
+}
+
+.quality-metric-val {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------------------------------------------------------------
+ * Preset Sample Buttons (Bearing / Casting)
+ * -------------------------------------------------------------------------*/
+.bearing-preset-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}

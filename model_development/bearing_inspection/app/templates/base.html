@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Casting Defect Detector | QC AI Visual Inspection{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="brand-badge">QC-AI</span>
+        <div>
+          <h1 class="brand-title">Casting Defect Detector</h1>
+          <p class="brand-subtitle">Visual Quality Inspection MVP — Decision Support System</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-indicator {% if model_is_loaded %}active{% else %}warning{% endif %}"></span>
+        <span class="status-text">
+          {% if model_is_loaded %}
+            Model Active: <strong>{{ model_version }}</strong>
+          {% else %}
+            Model Belum Tersedia
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-note">
+        <strong>Pemberitahuan:</strong> Aplikasi visual screening berbasis AI ini dirancang khusus untuk domain <em>Casting Product Inspection</em>. Seluruh hasil inspeksi bersifat pendukung keputusan (preliminary decision-support) dan wajib diverifikasi oleh personel QC berwenang.
+      </p>
+      <p class="footer-copy">© 2026 Casting Inspection Prototype — Upload-Only MVP</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+

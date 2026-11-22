@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Industrial Bearing Quality Inspection System | Pure CNN 512x512 Metrology</title>
+
+  <!-- Google Font: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      --bg-dark: #0B1120;
+      --panel-bg: #111827;
+      --card-bg: #1F2937;
+      --card-border: #374151;
+      --text-main: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --text-sub: #6B7280;
+
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --color-pass: #10B981;
+      --color-pass-bg: rgba(16, 185, 129, 0.15);
+      --color-reject: #EF4444;
+      --color-reject-bg: rgba(239, 68, 68, 0.15);
+      --color-warn: #F59E0B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden; /* STRICT ONE PAGE - NO SCROLL */
+      font-family: var(--font-family);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR / HEADER (Compact 50px) */
+    .topbar {
+      height: 50px;
+      min-height: 50px;
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 20;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      background: #1E3A8A;
+      color: #93C5FD;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid #2563EB;
+    }
+
+    .app-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .decision-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 16px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: #374151;
+      color: #D1D5DB;
+      border: 1px solid #4B5563;
+      transition: all 0.25s ease;
+    }
+
+    .decision-banner.pass {
+      background: var(--color-pass-bg);
+      color: #34D399;
+      border-color: #059669;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .decision-banner.reject {
+      background: var(--color-reject-bg);
+      color: #F87171;
+      border-color: #DC2626;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-academic {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      color: #F8FAFC;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-academic:hover {
+      background: #2563EB;
+      border-color: #3B82F6;
+    }
+
+    /* MAIN WORKSPACE (Split Left Sidebar & Right 6-Frame Grid) */
+    .workspace {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 10px;
+      padding: 10px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR */
+    .sidebar {
+      background: var(--panel-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .panel-card-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #9CA3AF;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Mode Tabs */
+    .mode-tab-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      background: #111827;
+      padding: 3px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      padding: 5px 0;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #9CA3AF;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-btn.active {
+      background: #2563EB;
+      color: #FFFFFF;
+    }
+
+    /* Upload Area */
+    .compact-dropzone {
+      border: 2px dashed #4B5563;
+      border-radius: 6px;
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      background: #111827;
+      transition: all 0.2s ease;
+    }
+
+    .compact-dropzone:hover {
+      border-color: #3B82F6;
+      background: #1E293B;
+    }
+
+    .quick-samples {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn-sample {
+      padding: 4px 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .btn-sample-defect {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      border-color: #EF4444;
+    }
+    .btn-sample-defect:hover { background: #EF4444; color: #FFF; }
+
+    .btn-sample-normal {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border-color: #10B981;
+    }
+    .btn-sample-normal:hover { background: #10B981; color: #FFF; }
+
+    /* Camera Feed Area */
+    .cam-box {
+      width: 100%;
+      height: 140px;
+      background: #000000;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid #374151;
+      margin-bottom: 6px;
+    }
+
+    #videoElement {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cam-reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70%;
+      height: 70%;
+      border: 1.5px dashed rgba(0, 229, 255, 0.7);
+      border-radius: 6px;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 3px;
+    }
+
+    .cam-reticle-txt {
+      font-size: 0.62rem;
+      color: #00E5FF;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .cam-btn-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 34px;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .btn-act {
+      padding: 6px 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-start {
+      background: #10B981;
+      color: #FFFFFF;
+    }
+    .btn-start.running {
+      background: #EF4444;
+    }
+
+    .btn-snap {
+      background: #374151;
+      color: #F3F4F6;
+      border: 1px solid #4B5563;
+    }
+    .btn-snap:hover { background: #4B5563; }
+
+    .btn-icon {
+      background: #374151;
+      color: #F3F4F6;
+      border: 1px solid #4B5563;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cam-options-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: #9CA3AF;
+      margin-bottom: 4px;
+    }
+
+    .cam-select {
+      background: #111827;
+      color: #E5E7EB;
+      border: 1px solid #4B5563;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-size: 0.68rem;
+      max-width: 170px;
+    }
+
+    .btn-zoom {
+      padding: 2px 6px;
+      font-size: 0.66rem;
+      font-weight: 600;
+      border: 1px solid #4B5563;
+      border-radius: 3px;
+      background: #111827;
+      color: #D1D5DB;
+      cursor: pointer;
+    }
+    .btn-zoom.active {
+      background: #2563EB;
+      border-color: #2563EB;
+      color: #FFFFFF;
+    }
+
+    /* Production Line Counters */
+    .qc-counter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      text-align: center;
+    }
+
+    .qc-box {
+      background: #111827;
+      border-radius: 5px;
+      padding: 4px 2px;
+      border: 1px solid #374151;
+    }
+
+    .qc-box-lbl {
+      font-size: 0.6rem;
+      color: #9CA3AF;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .qc-box-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    /* Telemetry Info */
+    .tele-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      padding: 3px 0;
+      border-bottom: 1px solid #283548;
+    }
+    .tele-row:last-child { border-bottom: none; }
+    .tele-lbl { color: #9CA3AF; }
+    .tele-val { font-weight: 600; color: #F3F4F6; }
+
+    /* RIGHT SECTION: 6-FRAME MULTI-VIEW GALLERY (3 Columns x 2 Rows) */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 8px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .frame-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.2s ease;
+    }
+
+    .frame-card.highlight-defect {
+      border: 2px solid #EF4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+    }
+
+    .frame-card.highlight-pass {
+      border: 2px solid #10B981;
+    }
+
+    .frame-header {
+      height: 26px;
+      background: #1E293B;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+
+    .frame-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #E2E8F0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .frame-tag {
+      font-size: 0.62rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-blue { background: #1E3A8A; color: #93C5FD; }
+    .tag-red { background: #7F1D1D; color: #FCA5A5; }
+    .tag-green { background: #064E3B; color: #6EE7B7; }
+    .tag-amber { background: #78350F; color: #FCD34D; }
+    .tag-purple { background: #4C1D95; color: #C4B5FD; }
+
+    .frame-body {
+      flex: 1;
+      min-height: 0;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: zoom-in;
+    }
+
+    .frame-body img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .frame-placeholder {
+      font-size: 0.7rem;
+      color: #6B7280;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .btn-frame-zoom {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .btn-frame-zoom:hover { background: #2563EB; border-color: #3B82F6; }
+
+    /* FULLSCREEN LIGHTBOX MODAL */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 17, 32, 0.94);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .lightbox-modal.active { display: flex; }
+
+    .lightbox-head {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .lightbox-img-box {
+      max-width: 860px;
+      max-height: calc(100vh - 100px);
+      border: 1px solid #374151;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+    .lightbox-img-box img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* ACADEMIC S2 MODAL */
+    .academic-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 17, 32, 0.90);
+      backdrop-filter: blur(8px);
+      z-index: 20000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .academic-backdrop.active { display: flex; }
+
+    .academic-dialog {
+      background: #1E293B;
+      border: 1px solid #475569;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .academic-header {
+      padding: 14px 20px;
+      background: #0F172A;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+    }
+
+    .academic-tabs {
+      display: flex;
+      background: #111827;
+      border-bottom: 1px solid #334155;
+      padding: 0 16px;
+      gap: 4px;
+    }
+
+    .ac-tab {
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #94A3B8;
+      border: none;
+      background: transparent;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+    }
+    .ac-tab.active { color: #38BDF8; border-bottom-color: #38BDF8; }
+
+    .academic-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      font-size: 0.8rem;
+      color: #E2E8F0;
+    }
+    .ac-pane { display: none; }
+    .ac-pane.active { display: block; }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP BAR (50px) -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo-badge">Pure CNN 512x512</span>
+      <h1 class="app-title">Bearing Defect Metrology Station</h1>
+    </div>
+
+    <div class="topbar-center">
+      <div id="statusBanner" class="decision-banner">
+        <span id="decisionText">STANDBY / AWAITING FEED</span>
+        <span id="confBadge" style="font-size: 0.74rem; opacity: 0.85;">Confidence: 0.0%</span>
+        <span id="latencyBadge" style="font-size: 0.74rem; opacity: 0.85;">- ms</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button type="button" class="btn-academic" onclick="openAcademicModal()" title="Buka Data Evaluasi Ilmiah & Confusion Matrix untuk Sidang S2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+        <span>S2 Research Benchmarks</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="workspace">
+    <!-- LEFT SIDEBAR: INPUT & CONTROLS -->
+    <aside class="sidebar">
+      <!-- Input Panel -->
+      <div class="panel-card" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="panel-card-title">
+          <span>Inspection Input</span>
+          <span id="inputDimLabel" style="color: #60A5FA; font-size: 0.68rem;">512x512 CLAHE</span>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div class="mode-tab-group">
+          <button type="button" class="mode-btn active" id="tabUpload" onclick="switchMode('upload')">File Upload</button>
+          <button type="button" class="mode-btn" id="tabCamera" onclick="switchMode('camera')">Live Camera</button>
+        </div>
+
+        <!-- Upload Panel Content -->
+        <div id="uploadArea" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+          <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+          <div class="compact-dropzone" onclick="document.getElementById('fileInput').click()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" style="margin: 0 auto 4px auto; display: block;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <div style="font-size: 0.75rem; font-weight: 600;">Pilih Citra Bearing Ring</div>
+            <div style="font-size: 0.65rem; color: #9CA3AF;">Drop file atau klik untuk browse</div>
+          </div>
+
+          <div style="font-size: 0.66rem; color: #9CA3AF; margin-top: 8px; text-align: center;">Preset Sampel Uji Cepat (Test Set):</div>
+          <div class="quick-samples">
+            <button type="button" class="btn-sample btn-sample-defect" onclick="loadSamplePreset('defect')">Uji Defect Ring</button>
+            <button type="button" class="btn-sample btn-sample-normal" onclick="loadSamplePreset('normal')">Uji Normal Ring</button>
+          </div>
+        </div>
+
+        <!-- Live Camera Panel Content -->
+        <div id="cameraArea" style="display: none; flex-direction: column;">
+          <div class="cam-box" id="cameraContainer">
+            <video id="videoElement" autoplay playsinline muted></video>
+            <div class="cam-reticle">
+              <span class="cam-reticle-txt">Fokus Permukaan Logam</span>
+            </div>
+          </div>
+
+          <div class="cam-btn-row">
+            <button type="button" id="btnAutoInspect" class="btn-act btn-start" onclick="toggleAutoInspection()">
+              <span id="startBtnTxt">Start Real-Time</span>
+            </button>
+            <button type="button" class="btn-act btn-snap" onclick="captureWebcamFrame()">Snapshot</button>
+            <button type="button" class="btn-icon" onclick="switchCamera()" title="Putar Kamera">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Camera Selector -->
+          <div class="cam-options-row">
+            <span>Kamera:</span>
+            <select id="cameraSelect" class="cam-select" onchange="onCameraDeviceChanged(this.value)">
+              <option value="">Deteksi kamera...</option>
+            </select>
+          </div>
+
+          <!-- Macro Zoom Selector -->
+          <div class="cam-options-row">
+            <span>Macro Zoom:</span>
+            <div style="display: flex; gap: 3px;">
+              <button type="button" class="btn-zoom active" id="zoom1" onclick="setCameraZoom(1.0)">1.0x</button>
+              <button type="button" class="btn-zoom" id="zoom15" onclick="setCameraZoom(1.5)">1.5x</button>
+              <button type="button" class="btn-zoom" id="zoom2" onclick="setCameraZoom(2.0)">2.0x</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QC Production Telemetry Counter -->
+      <div class="panel-card">
+        <div class="panel-card-title">
+          <span>Simulasi Lini QC Pabrik</span>
+          <button type="button" onclick="resetQCCounter()" style="background: none; border: none; color: #38BDF8; font-size: 0.65rem; cursor: pointer; text-decoration: underline;">Reset</button>
+        </div>
+        <div class="qc-counter-grid">
+          <div class="qc-box">
+            <div class="qc-box-lbl">Total</div>
+            <div id="qcTotal" class="qc-box-val" style="color: #F8FAFC;">0</div>
+          </div>
+          <div class="qc-box" style="border-color: #059669;">
+            <div class="qc-box-lbl" style="color: #34D399;">PASS</div>
+            <div id="qcPass" class="qc-box-val" style="color: #34D399;">0</div>
+          </div>
+          <div class="qc-box" style="border-color: #DC2626;">
+            <div class="qc-box-lbl" style="color: #F87171;">REJECT</div>
+            <div id="qcReject" class="qc-box-val" style="color: #F87171;">0</div>
+          </div>
+          <div class="qc-box" style="border-color: #D97706;">
+            <div class="qc-box-lbl" style="color: #FBBF24;">Scrap%</div>
+            <div id="qcScrap" class="qc-box-val" style="color: #FBBF24;">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telemetry Details -->
+      <div class="panel-card">
+        <div class="panel-card-title">Metrik Telemetri Model</div>
+        <div class="tele-row">
+          <span class="tele-lbl">Defect Probability</span>
+          <span class="tele-val" id="probDefect" style="color: #F87171;">0.0%</span>
+        </div>
+        <div class="tele-row">
+          <span class="tele-lbl">Normal Probability</span>
+          <span class="tele-val" id="probNormal" style="color: #34D399;">0.0%</span>
+        </div>
+        <div class="tele-row">
+          <span class="tele-lbl">Klaster Baret (Kotak Merah)</span>
+          <span class="tele-val" id="boxCountVal">0 Klaster</span>
+        </div>
+        <div class="tele-row">
+          <span class="tele-lbl">Resolusi Matriks Metrologi</span>
+          <span class="tele-val">512x512 (262.144 Sel)</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN SECTION: 6-FRAME MULTI-VIEW GALLERY (SIMULTANEOUS REAL-TIME) -->
+    <section class="gallery-grid">
+
+      <!-- FRAME 1: INPUT SOURCE -->
+      <div class="frame-card" id="cardFrame1">
+        <div class="frame-header">
+          <span class="frame-title">1. Original Input Feed</span>
+          <span class="frame-tag tag-blue">Input</span>
+        </div>
+        <div class="frame-body" onclick="zoomFrame('imgFrame1', '1. Original Input Source Feed')">
+          <img id="imgFrame1" style="display: none;" alt="Original Source">
+          <div id="phFrame1" class="frame-placeholder">Menunggu umpan citra...</div>
+          <button type="button" class="btn-frame-zoom">Zoom</button>
+        </div>
+      </div>
+
+      <!-- FRAME 2: RED BOUNDING BOX DEFECT DETECTION (PRIMARY OUTPUT) -->
+      <div class="frame-card highlight-pass" id="cardFrame2">
+        <div class="frame-header" style="background: #111827;">
+          <span class="frame-title" id="titleFrame2" style="font-weight: 700; color: #FFFFFF;">2. Deteksi Cacat (Kotak Merah Langsung)</span>
+          <span class="frame-tag tag-red" id="tagFrame2">QC Out</span>
+        </div>
+        <div class="frame-body" onclick="zoomFrame('imgFrame2', '2. Deteksi Cacat (Kotak Merah pada Citra Asli)')">
+          <img id="imgFrame2" style="display: none;" alt="Defect Bounding Box">
+          <div id="phFrame2" class="frame-placeholder">Hasil kotak cacat akan muncul langsung di sini</div>
+          <button type="button" class="btn-frame-zoom">Zoom HD</button>
+        </div>
+      </div>
+
+      <!-- FRAME 3: 512x512 DISPARITY METROLOGY MATRIX -->
+      <div class="frame-card" id="cardFrame3">
+        <div class="frame-header">
+          <span class="frame-title">3. Matriks Disparitas 512x512 (Numerik)</span>
+          <span class="frame-tag tag-purple">Metrology</span>
+        </div>
+        <div class="frame-body" onclick="zoomFrame('imgFrame3', '3. Matriks Derajat Angka Disparitas 512x512')">
+          <img id="imgFrame3" style="display: none;" alt="Metrology Matrix">
+          <div id="phFrame3" class="frame-placeholder">Matriks 262.144 sel derajat disparitas</div>
+          <button type="button" class="btn-frame-zoom">Zoom</button>
+        </div>
+      </div>
+
+      <!-- FRAME 4: FILTER 1 - CLAHE -->
+      <div class="frame-card" id="cardFrame4">
+        <div class="frame-header">
+          <span class="frame-title">4. Filter CLAHE (Pencahayaan Adaptif)</span>
+          <span class="frame-tag tag-green">Filter 1</span>
+        </div>
+        <div class="frame-body" onclick="zoomFrame('imgFrame4', '4. Filter Standar Industri: CLAHE Contrast Normalization')">
+          <img id="imgFrame4" style="display: none;" alt="Filter CLAHE">
+          <div id="phFrame4" class="frame-placeholder">Normalisasi kontras mikro pencahayaan</div>
+          <button type="button" class="btn-frame-zoom">Zoom</button>
+        </div>
+      </div>
+
+      <!-- FRAME 5: FILTER 2 - MORFOLOGI BLACK-HAT -->
+      <div class="frame-card" id="cardFrame5">
+        <div class="frame-header">
+          <span class="frame-title">5. Morfologi Cacat (Black-Hat Cerukan)</span>
+          <span class="frame-tag tag-amber">Filter 2</span>
+        </div>
+        <div class="frame-body" onclick="zoomFrame('imgFrame5', '5. Filter Morfologi: Black-Hat Isolasi Fitur Gelap')">
+          <img id="imgFrame5" style="display: none;" alt="Filter Black-Hat">
+          <div id="phFrame5" class="frame-placeholder">Isolasi retakan, goresan, dan cerukan mikro</div>
+          <button type="button" class="btn-frame-zoom">Zoom</button>
+        </div>
+      </div>
+
+      <!-- FRAME 6: FILTER 3 - SOBEL TEXTURE GRADIENT -->
+      <div class="frame-card" id="cardFrame6">
+        <div class="frame-header">
+          <span class="frame-title">6. Texture Gradient (Topografi Sobel)</span>
+          <span class="frame-tag tag-blue">Filter 3</span>
+        </div>
+        <div class="frame-body" onclick="zoomFrame('imgFrame6', '6. Filter Topografi: Sobel Surface Texture Gradient')">
+          <img id="imgFrame6" style="display: none;" alt="Filter Texture Gradient">
+          <div id="phFrame6" class="frame-placeholder">Struktur gradien tekstur bubut vs latar meja</div>
+          <button type="button" class="btn-frame-zoom">Zoom</button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- LIGHTBOX FULLSCREEN ZOOM MODAL -->
+  <div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox(event)">
+    <div class="lightbox-head">
+      <span id="lightboxTitle" style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF;">High Definition Frame Zoom</span>
+      <button type="button" onclick="closeLightboxDirect()" style="background: none; border: none; color: #9CA3AF; font-size: 1.3rem; cursor: pointer;">✕</button>
+    </div>
+    <div class="lightbox-img-box" onclick="event.stopPropagation()">
+      <img id="lightboxImg" src="" alt="Enlarged Metrology View">
+    </div>
+  </div>
+
+  <!-- S2 ACADEMIC DEFENSE MODAL -->
+  <div id="academicModal" class="academic-backdrop" onclick="closeAcademicModal(event)">
+    <div class="academic-dialog" onclick="event.stopPropagation()">
+      <div class="academic-header">
+        <div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF;">S2 Academic Evaluation &amp; Benchmarks</div>
+          <div style="font-size: 0.72rem; color: #94A3B8;">Pure 7-Stage CNN &bull; 72 Independent Test Samples &bull; Empirical Rigor</div>
+        </div>
+        <button type="button" onclick="closeAcademicModalDirect()" style="background: none; border: none; color: #94A3B8; font-size: 1.3rem; cursor: pointer;">✕</button>
+      </div>
+
+      <div class="academic-tabs">
+        <button type="button" class="ac-tab active" id="acTab1" onclick="switchAcTab(1)">1. Confusion Matrix</button>
+        <button type="button" class="ac-tab" id="acTab2" onclick="switchAcTab(2)">2. Kurva Training &amp; Loss</button>
+        <button type="button" class="ac-tab" id="acTab3" onclick="switchAcTab(3)">3. Arsitektur CNN</button>
+        <button type="button" class="ac-tab" id="acTab4" onclick="switchAcTab(4)">4. Skenario Pabrik</button>
+      </div>
+
+      <div class="academic-body">
+        <!-- Tab 1 -->
+        <div id="acPane1" class="ac-pane active">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;">
+            <div style="background: #0F172A; padding: 12px; border-radius: 8px; border: 1px solid #334155; text-align: center;">
+              <div style="font-weight: 600; margin-bottom: 8px;">Heatmap Confusion Matrix (Test Set)</div>
+              <img src="/api/analytics/confusion_matrix" alt="Confusion Matrix" style="width: 100%; max-height: 250px; object-fit: contain; border-radius: 6px;">
+            </div>
+            <div>
+              <div style="font-weight: 600; margin-bottom: 8px;">Metrik Pengujian Ilmiah (72 Sampel):</div>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; border: 1px solid #334155;">
+                <tr style="background: #0F172A;">
+                  <th style="padding: 6px; border: 1px solid #334155;">Parameter</th>
+                  <th style="padding: 6px; border: 1px solid #334155;">Nilai</th>
+                  <th style="padding: 6px; border: 1px solid #334155;">Analisis Manufaktur</th>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; border: 1px solid #334155; font-weight: 600;">Overall Accuracy</td>
+                  <td style="padding: 6px; border: 1px solid #334155; color: #60A5FA;">95.83%</td>
+                  <td style="padding: 6px; border: 1px solid #334155;">69 dari 72 sampel teruji benar</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; border: 1px solid #334155; font-weight: 600;">Defect Precision</td>
+                  <td style="padding: 6px; border: 1px solid #334155; color: #34D399;">100.00%</td>
+                  <td style="padding: 6px; border: 1px solid #334155;">Tidak ada cincin normal dituduh cacat</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; border: 1px solid #334155; font-weight: 600;">Normal Recall</td>
+                  <td style="padding: 6px; border: 1px solid #334155; color: #34D399;">100.00%</td>
+                  <td style="padding: 6px; border: 1px solid #334155;">36/36 cincin normal lolos sempurna</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; border: 1px solid #334155; font-weight: 600;">Defect Recall</td>
+                  <td style="padding: 6px; border: 1px solid #334155; color: #FBBF24;">91.67%</td>
+                  <td style="padding: 6px; border: 1px solid #334155;">33/36 cincin cacat terdeteksi akurat</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; border: 1px solid #334155; font-weight: 600;">False Positive Rate</td>
+                  <td style="padding: 6px; border: 1px solid #334155; color: #34D399;">0.00%</td>
+                  <td style="padding: 6px; border: 1px solid #334155;">Zero False Alarm (Bebas Halusinasi)</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2 -->
+        <div id="acPane2" class="ac-pane">
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; align-items: start;">
+            <div style="background: #0F172A; padding: 12px; border-radius: 8px; border: 1px solid #334155; text-align: center;">
+              <div style="font-weight: 600; margin-bottom: 8px;">Riwayat Training &amp; Validation Loss (15 Epoch)</div>
+              <img src="/api/analytics/training_history" alt="Training Curve" style="width: 100%; max-height: 270px; object-fit: contain; border-radius: 6px;">
+            </div>
+            <div>
+              <div style="font-weight: 600; margin-bottom: 6px;">Konvergensi Model Optimal:</div>
+              <p style="font-size: 0.74rem; line-height: 1.5; color: #94A3B8;">
+                Model mencapai performa konvergen terbaik pada <strong>Epoch 14</strong> dengan Validation Accuracy <strong>100.00%</strong> dan Validation Loss terendah <strong>0.0168</strong>.
+              </p>
+              <div style="margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid #059669; border-radius: 6px; font-size: 0.74rem; color: #6EE7B7;">
+                Kurva Training Loss dan Validation Loss stabil berhimpitan dan tidak mengalami divergensi (*no overfitting*).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3 -->
+        <div id="acPane3" class="ac-pane">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.74rem; border: 1px solid #334155; margin-bottom: 12px;">
+            <tr style="background: #0F172A;">
+              <th style="padding: 6px; border: 1px solid #334155;">Blok Layer</th>
+              <th style="padding: 6px; border: 1px solid #334155;">Struktur Lapisan</th>
+              <th style="padding: 6px; border: 1px solid #334155;">Output Tensor</th>
+              <th style="padding: 6px; border: 1px solid #334155;">Peran Metrologi</th>
+            </tr>
+            <tr>
+              <td style="padding: 6px; border: 1px solid #334155;">Input</td>
+              <td style="padding: 6px; border: 1px solid #334155;">1 Kanal CLAHE Grayscale</td>
+              <td style="padding: 6px; border: 1px solid #334155;">[B, 1, 512, 512]</td>
+              <td style="padding: 6px; border: 1px solid #334155;">Normalisasi pencahayaan</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px; border: 1px solid #334155;">Conv Block 1-4</td>
+              <td style="padding: 6px; border: 1px solid #334155;">4x (Conv2D + BatchNorm + ReLU + MaxPool)</td>
+              <td style="padding: 6px; border: 1px solid #334155;">[B, 64, 32, 32]</td>
+              <td style="padding: 6px; border: 1px solid #334155;">Ekstraksi tekstur bubut &amp; baret</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px; border: 1px solid #334155;">Pooling</td>
+              <td style="padding: 6px; border: 1px solid #334155;">AdaptiveAvgPool2d((8, 8))</td>
+              <td style="padding: 6px; border: 1px solid #334155;">[B, 64, 8, 8]</td>
+              <td style="padding: 6px; border: 1px solid #334155;">Invariansi spasial resolusi</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px; border: 1px solid #334155;">Head Classifier</td>
+              <td style="padding: 6px; border: 1px solid #334155;">Linear(4096&rarr;128) + Dropout(0.4) + Linear(128&rarr;2)</td>
+              <td style="padding: 6px; border: 1px solid #334155;">[B, 2]</td>
+              <td style="padding: 6px; border: 1px solid #334155;">Klasifikasi Biner Objektif</td>
+            </tr>
+          </table>
+          <div style="font-size: 0.74rem; color: #94A3B8;">
+            Total Bobot: <strong>585.250 Parameter</strong> | Ukuran File: <strong>2.24 MB</strong> | Sangat ringan untuk di-deploy pada Edge Industrial PC (Raspberry Pi 5 / Jetson).
+          </div>
+        </div>
+
+        <!-- Tab 4 -->
+        <div id="acPane4" class="ac-pane">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div style="background: #0F172A; padding: 12px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="font-weight: 700; color: #60A5FA; margin-bottom: 6px;">Skenario 1: Sensor Trigger (Konveyor)</div>
+              <p style="font-size: 0.74rem; line-height: 1.5; color: #94A3B8;">
+                Sensor optik mendeteksi kedatangan ring di konveyor &rarr; Kamera menjepret 1 frame HD &rarr; AI memproses dalam &le; 45 ms &rarr; Aktuator pneumatik menendang produk reject ke keranjang sortir. (Disimulasikan oleh tombol <strong>Snapshot</strong>).
+              </p>
+            </div>
+            <div style="background: #0F172A; padding: 12px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="font-weight: 700; color: #34D399; margin-bottom: 6px;">Skenario 2: Continuous Stream (Piringan Putar)</div>
+              <p style="font-size: 0.74rem; line-height: 1.5; color: #94A3B8;">
+                Ring berputar 360 derajat di atas rotary indexing table &rarr; Kamera menyisir video stream pada 2-3 FPS &rarr; Status dan akumulasi reject tercatat otomatis pada counter QC pabrik. (Disimulasikan oleh tombol <strong>Start Real-Time</strong>).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT CONTROLLER -->
+  <script>
+    let videoStream = null;
+    let selectedDeviceId = null;
+    let isAutoInspecting = false;
+    let isProcessing = false;
+    let autoIntervalMs = 700;
+    let autoTimer = null;
+    let currentSensitivity = 0.22;
+    let currentGridDim = 512;
+    let currentCameraZoom = 1.0;
+    let lastFile = null;
+    let lastDataUrl = null;
+
+    // Production Line Counters
+    let qcTotalCount = 0;
+    let qcPassCount = 0;
+    let qcRejectCount = 0;
+
+    function resetQCCounter() {
+      qcTotalCount = 0;
+      qcPassCount = 0;
+      qcRejectCount = 0;
+      updateQCCounters();
+    }
+
+    function updateQCCounters() {
+      document.getElementById('qcTotal').innerText = qcTotalCount;
+      document.getElementById('qcPass').innerText = qcPassCount;
+      document.getElementById('qcReject').innerText = qcRejectCount;
+      const rate = qcTotalCount > 0 ? ((qcRejectCount / qcTotalCount) * 100).toFixed(1) : '0';
+      document.getElementById('qcScrap').innerText = rate + '%';
+    }
+
+    // Switch Upload vs Camera
+    function switchMode(mode) {
+      const tabUpload = document.getElementById('tabUpload');
+      const tabCamera = document.getElementById('tabCamera');
+      const uploadArea = document.getElementById('uploadArea');
+      const cameraArea = document.getElementById('cameraArea');
+
+      if (mode === 'upload') {
+        stopAutoInspection();
+        tabUpload.classList.add('active');
+        tabCamera.classList.remove('active');
+        uploadArea.style.display = 'flex';
+        cameraArea.style.display = 'none';
+        stopWebcam();
+      } else {
+        tabCamera.classList.add('active');
+        tabUpload.classList.remove('active');
+        uploadArea.style.display = 'none';
+        cameraArea.style.display = 'flex';
+        startWebcam();
+      }
+    }
+
+    function setCameraZoom(val) {
+      currentCameraZoom = val;
+      ['zoom1', 'zoom15', 'zoom2'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+      if (val === 1.0) document.getElementById('zoom1').classList.add('active');
+      if (val === 1.5) document.getElementById('zoom15').classList.add('active');
+      if (val === 2.0) document.getElementById('zoom2').classList.add('active');
+    }
+
+    // File Handling
+    function handleFileSelect(e) {
+      if (e.target.files.length > 0) processFile(e.target.files[0]);
+    }
+
+    function processFile(file) {
+      lastFile = file;
+      lastDataUrl = null;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('sensitivity', currentSensitivity);
+      formData.append('grid_dim', currentGridDim);
+      submitInference(formData, false);
+    }
+
+    function loadSamplePreset(type) {
+      fetch('/api/sample/' + type)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], `sample_${type}.jpg`, { type: 'image/jpeg' });
+          processFile(file);
+        })
+        .catch(err => alert("Gagal memuat preset: " + err));
+    }
+
+    // Webcam Handling
+    function startWebcam() {
+      const video = document.getElementById('videoElement');
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("Akses kamera membutuhkan HTTPS atau localhost.");
+        switchMode('upload');
+        return;
+      }
+
+      let constraints = { video: { width: { ideal: 640 }, height: { ideal: 480 } } };
+      if (selectedDeviceId) constraints.video.deviceId = { exact: selectedDeviceId };
+
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+          videoStream = stream;
+          video.srcObject = stream;
+          video.play();
+          populateCameraSelect();
+        })
+        .catch(err => {
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+              videoStream = stream;
+              video.srcObject = stream;
+              video.play();
+              populateCameraSelect();
+            })
+            .catch(err2 => {
+              alert("Gagal mengakses kamera: " + err2.message);
+              switchMode('upload');
+            });
+        });
+    }
+
+    function stopWebcam() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(t => t.stop());
+        videoStream = null;
+      }
+    }
+
+    function populateCameraSelect() {
+      if (!navigator.mediaDevices.enumerateDevices) return;
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        const vdevs = devices.filter(d => d.kind === 'videoinput');
+        const sel = document.getElementById('cameraSelect');
+        sel.innerHTML = '';
+        vdevs.forEach((d, i) => {
+          const opt = document.createElement('option');
+          opt.value = d.deviceId;
+          opt.innerText = d.label || `Kamera ${i + 1}`;
+          if (selectedDeviceId === d.deviceId) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      });
+    }
+
+    function onCameraDeviceChanged(devId) {
+      if (!devId || devId === selectedDeviceId) return;
+      selectedDeviceId = devId;
+      stopWebcam();
+      startWebcam();
+    }
+
+    function switchCamera() {
+      const sel = document.getElementById('cameraSelect');
+      if (sel.options.length > 1) {
+        const nextIdx = (sel.selectedIndex + 1) % sel.options.length;
+        sel.selectedIndex = nextIdx;
+        onCameraDeviceChanged(sel.value);
+      }
+    }
+
+    // Frame Capture with Macro Zoom
+    function getFramedImageBase64(quality = 0.88) {
+      const video = document.getElementById('videoElement');
+      if (!video || video.readyState < 2) return null;
+
+      const vw = video.videoWidth || 640;
+      const vh = video.videoHeight || 480;
+
+      const zoom = currentCameraZoom || 1.0;
+      const baseCrop = Math.min(vw, vh) * 0.70;
+      const cropSize = Math.floor(baseCrop / zoom);
+      const sx = Math.floor((vw - cropSize) / 2);
+      const sy = Math.floor((vh - cropSize) / 2);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, sx, sy, cropSize, cropSize, 0, 0, 512, 512);
+
+      return canvas.toDataURL('image/jpeg', quality);
+    }
+
+    function captureWebcamFrame() {
+      const dataUrl = getFramedImageBase64(0.92);
+      if (!dataUrl) return;
+      lastFile = null;
+      lastDataUrl = dataUrl;
+      submitInference({ image_base64: dataUrl, sensitivity: currentSensitivity, grid_dim: currentGridDim }, true);
+    }
+
+    // Real-Time Auto Scan Loop
+    function toggleAutoInspection() {
+      if (isAutoInspecting) {
+        stopAutoInspection();
+      } else {
+        startAutoInspection();
+      }
+    }
+
+    function startAutoInspection() {
+      isAutoInspecting = true;
+      const btn = document.getElementById('btnAutoInspect');
+      btn.classList.add('running');
+      document.getElementById('startBtnTxt').innerText = 'Stop Real-Time';
+      runAutoLoop();
+    }
+
+    function stopAutoInspection() {
+      isAutoInspecting = false;
+      if (autoTimer) clearTimeout(autoTimer);
+      const btn = document.getElementById('btnAutoInspect');
+      if (btn) {
+        btn.classList.remove('running');
+        document.getElementById('startBtnTxt').innerText = 'Start Real-Time';
+      }
+    }
+
+    function runAutoLoop() {
+      if (!isAutoInspecting) return;
+      if (isProcessing) {
+        autoTimer = setTimeout(runAutoLoop, 60);
+        return;
+      }
+
+      const dataUrl = getFramedImageBase64(0.85);
+      if (!dataUrl) {
+        autoTimer = setTimeout(runAutoLoop, 150);
+        return;
+      }
+
+      isProcessing = true;
+      fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_base64: dataUrl, sensitivity: currentSensitivity, grid_dim: currentGridDim })
+      })
+      .then(res => res.json())
+      .then(data => {
+        isProcessing = false;
+        if (data.status === 'success') {
+          renderSimultaneousFrames(data);
+        }
+        if (isAutoInspecting) autoTimer = setTimeout(runAutoLoop, autoIntervalMs);
+      })
+      .catch(err => {
+        isProcessing = false;
+        if (isAutoInspecting) autoTimer = setTimeout(runAutoLoop, 1000);
+      });
+    }
+
+    // Submit Inference
+    function submitInference(payload, isJson) {
+      const opts = { method: 'POST' };
+      if (isJson) {
+        opts.headers = { 'Content-Type': 'application/json' };
+        opts.body = JSON.stringify(payload);
+      } else {
+        opts.body = payload;
+      }
+
+      fetch('/api/predict', opts)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            renderSimultaneousFrames(data);
+          } else {
+            alert("Inspection error: " + (data.error || "Unknown"));
+          }
+        })
+        .catch(err => alert("Connection error: " + err));
+    }
+
+    // SIMULTANEOUS ALL-FRAME RENDERING (ALL 6 FRAMES UPDATE TOGETHER)
+    function renderSimultaneousFrames(data) {
+      const views = data.views || {};
+      const isDefect = data.is_defect;
+
+      // 1. Frame 1: Original Source Feed
+      setFrameImage('imgFrame1', 'phFrame1', data.original_image || views.original_native);
+
+      // 2. Frame 2: Deteksi Cacat (Kotak Merah Langsung)
+      setFrameImage('imgFrame2', 'phFrame2', data.annotated_image || views.red_dots);
+      const card2 = document.getElementById('cardFrame2');
+      const tag2 = document.getElementById('tagFrame2');
+      if (isDefect) {
+        card2.className = 'frame-card highlight-defect';
+        tag2.className = 'frame-tag tag-red';
+        tag2.innerText = `${data.num_defect_markers} DEFECT`;
+      } else {
+        card2.className = 'frame-card highlight-pass';
+        tag2.className = 'frame-tag tag-green';
+        tag2.innerText = 'PASS';
+      }
+
+      // 3. Frame 3: Matriks Disparitas 512x512
+      setFrameImage('imgFrame3', 'phFrame3', views.chessboard_matrix);
+
+      // 4. Frame 4: Filter 1 - CLAHE
+      setFrameImage('imgFrame4', 'phFrame4', views.filter_clahe);
+
+      // 5. Frame 5: Filter 2 - Morfologi Black-Hat
+      setFrameImage('imgFrame5', 'phFrame5', views.filter_morpho);
+
+      // 6. Frame 6: Filter 3 - Sobel Texture Gradient
+      setFrameImage('imgFrame6', 'phFrame6', views.filter_texture_grad);
+
+      // 7. Update Topbar Decision Banner
+      const banner = document.getElementById('statusBanner');
+      banner.className = 'decision-banner ' + (isDefect ? 'reject' : 'pass');
+      document.getElementById('decisionText').innerText = data.decision;
+      document.getElementById('confBadge').innerText = `Confidence: ${data.confidence}%`;
+      document.getElementById('latencyBadge').innerText = `${data.latency_ms} ms`;
+
+      // 8. Update Telemetry
+      const probs = data.probabilities || {};
+      document.getElementById('probDefect').innerText = `${probs.defect_ring || 0}%`;
+      document.getElementById('probNormal').innerText = `${probs.normal_ring || 0}%`;
+      document.getElementById('boxCountVal').innerText = `${data.num_defect_markers} Klaster Terdeteksi`;
+
+      // 9. Update QC Counter
+      qcTotalCount++;
+      if (isDefect) qcRejectCount++; else qcPassCount++;
+      updateQCCounters();
+    }
+
+    function setFrameImage(imgId, phId, srcUrl) {
+      if (!srcUrl) return;
+      const img = document.getElementById(imgId);
+      const ph = document.getElementById(phId);
+      img.src = srcUrl;
+      img.style.display = 'block';
+      if (ph) ph.style.display = 'none';
+    }
+
+    // Fullscreen Zoom Lightbox
+    function zoomFrame(imgId, title) {
+      const img = document.getElementById(imgId);
+      if (!img || !img.src || img.style.display === 'none') return;
+      document.getElementById('lightboxImg').src = img.src;
+      document.getElementById('lightboxTitle').innerText = title;
+      document.getElementById('lightboxModal').classList.add('active');
+    }
+
+    function closeLightboxDirect() {
+      document.getElementById('lightboxModal').classList.remove('active');
+    }
+
+    function closeLightbox(e) {
+      if (e.target.id === 'lightboxModal') closeLightboxDirect();
+    }
+
+    // S2 Academic Modal Handlers
+    function openAcademicModal() {
+      document.getElementById('academicModal').classList.add('active');
+    }
+
+    function closeAcademicModalDirect() {
+      document.getElementById('academicModal').classList.remove('active');
+    }
+
+    function closeAcademicModal(e) {
+      if (e.target.id === 'academicModal') closeAcademicModalDirect();
+    }
+
+    function switchAcTab(tabNum) {
+      [1, 2, 3, 4].forEach(i => {
+        document.getElementById(`acTab${i}`).classList.remove('active');
+        document.getElementById(`acPane${i}`).classList.remove('active');
+      });
+      document.getElementById(`acTab${tabNum}`).classList.add('active');
+      document.getElementById(`acPane${tabNum}`).classList.add('active');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeLightboxDirect();
+        closeAcademicModalDirect();
+      }
+    });
+  </script>
+</body>
+
+</html>

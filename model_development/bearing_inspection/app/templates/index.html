@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-grid">
+
+  <!-- ===== LEFT PANEL: Inspection Input ===== -->
+  <section class="card upload-card" aria-labelledby="upload-heading">
+    <div class="card-header">
+      <div>
+        <h2 id="upload-heading" class="card-title">Inspection Input</h2>
+        <span class="card-meta-label">Format: Grayscale 128x128</span>
+      </div>
+    </div>
+
+    {% if not model_is_loaded %}
+    <div class="alert alert-warning" role="alert">
+      <strong>Perhatian:</strong> Bobot model CNN belum dimuat.
+      <p class="alert-details">{{ model_error }}</p>
+      <small>Jalankan: <code>python cnn/train.py</code></small>
+    </div>
+    {% endif %}
+
+    <!-- Upload Mode Tabs -->
+    <div class="upload-mode-tabs">
+      <button type="button" class="upload-tab-btn active" id="tab-file-upload">
+        📁 File Upload
+      </button>
+      <button type="button" class="upload-tab-btn disabled" title="Belum tersedia (Out of Scope)" disabled>
+        📷 Live Camera
+      </button>
+    </div>
+
+    <!-- Upload Form -->
+    <form id="inspection-form" class="upload-form" novalidate>
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Area unggah file gambar casting">
+        <input type="file" id="image-input" name="image" accept=".jpg,.jpeg,.png,.bmp,image/jpeg,image/png,image/bmp" class="file-input-hidden">
+
+        <div id="dropzone-prompt" class="dropzone-content">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <p class="dropzone-title">Drop bearing photo here or <strong>click to browse</strong></p>
+          <p class="dropzone-info">Supports JPG, PNG, BMP (Auto-preprocessed to 128x128)</p>
+        </div>
+
+        <div id="preview-wrapper" class="preview-wrapper" style="display: none;">
+          <img id="image-preview" src="#" alt="Pratinjau Citra Casting" class="image-preview">
+          <div class="preview-meta">
+            <span id="preview-filename" class="preview-filename">-</span>
+            <span id="preview-filesize" class="preview-filesize">-</span>
+          </div>
+          <div class="preview-actions">
+            <button type="button" id="btn-replace" class="btn btn-secondary btn-sm">Ganti Gambar</button>
+            <button type="button" id="btn-remove" class="btn btn-outline-danger btn-sm">Hapus</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Box -->
+      <div id="client-error-box" class="alert alert-danger" style="display: none;" role="alert">
+        <span id="client-error-message"></span>
+      </div>
+
+      <!-- Quick Test Buttons -->
+      <div class="quick-test-row">
+        <span class="quick-test-label">Quick Test:</span>
+        <button type="button" id="btn-quicktest-defect" class="btn btn-sm btn-quick-defect">Test Defect</button>
+        <button type="button" id="btn-quicktest-normal" class="btn btn-sm btn-quick-normal">Test Normal</button>
+      </div>
+
+      <!-- QC Sensitivity Selector -->
+      <div class="sensitivity-row">
+        <span class="sensitivity-label">QC Sensitivity:</span>
+        <div class="sensitivity-group" id="sensitivity-group">
+          <button type="button" class="sens-btn" data-sens="standard">Standard</button>
+          <button type="button" class="sens-btn active" data-sens="high">High (All Defects)</button>
+          <button type="button" class="sens-btn" data-sens="ultra">Ultra (Micro Cracks)</button>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="form-actions">
+        <button type="submit" id="btn-submit" class="btn btn-primary btn-block" disabled>
+          <span id="btn-text">Mulai Analisis Inspeksi</span>
+          <span id="btn-spinner" class="spinner" style="display: none;"></span>
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ===== RIGHT PANEL: Dual QC Inspection View ===== -->
+  <section class="card result-card" aria-labelledby="result-heading">
+    <div class="result-panel-header">
+      <h2 id="result-heading" class="card-title">Dual QC Inspection View</h2>
+      <div class="result-header-right">
+        <span id="result-status-badge" class="badge badge-neutral">Menunggu Citra</span>
+        <span id="processing-time-display" class="processing-time" style="display: none;"></span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="result-empty-state" class="empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p class="empty-title">Belum Ada Hasil Inspeksi</p>
+      <p class="empty-subtitle">Unggah citra produk casting di panel kiri atau gunakan Quick Test.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="result-loading-state" class="loading-state" style="display: none;">
+      <div class="large-spinner"></div>
+      <p class="loading-title">Sedang Menganalisis Citra Casting...</p>
+      <p class="loading-subtitle">Memvalidasi kualitas citra & menjalankan inferensi Pure-NumPy CNN + Anomaly Matrix</p>
+    </div>
+
+    <!-- Active Result Panel -->
+    <div id="result-content" class="result-content" style="display: none;">
+
+      <!-- DUAL VIEW: Original + Anomaly Matrix side by side -->
+      <div class="dual-view-container">
+        <!-- Left: Original Source Feed -->
+        <div class="dual-view-col" id="col-source">
+          <div class="dual-view-col-header">
+            <span class="dual-view-col-title">Original Input</span>
+            <span class="feed-badge feed-badge-source">SOURCE FEED</span>
+          </div>
+          <div class="dual-view-img-wrap">
+            <img id="dual-source-img" src="#" alt="Original Input" class="dual-view-img">
+            <!-- View switcher overlay buttons -->
+            <div id="source-switcher" class="source-switcher" style="display: none;">
+              <button type="button" id="btn-show-annotated" class="source-sw-btn active">🎯 Defect View</button>
+              <button type="button" id="btn-show-original" class="source-sw-btn">🖼 Original</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Anomaly Matrix -->
+        <div class="dual-view-col" id="col-matrix">
+          <div class="dual-view-col-header">
+            <span class="dual-view-col-title">128x128 Disparity Matrix</span>
+            <span class="feed-badge feed-badge-matrix">ANOMALY MATRIX</span>
+          </div>
+          <div class="dual-view-img-wrap">
+            <img id="dual-matrix-img" src="#" alt="128x128 Anomaly Matrix" class="dual-view-img">
+            <div id="matrix-loading" class="matrix-loading" style="display: none;">
+              <div class="small-spinner"></div>
+              <span>Rendering matrix...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Large Verdict Banner -->
+      <div id="verdict-banner-large" class="verdict-banner-large">
+        <div class="verdict-main-text" id="verdict-main-text">-</div>
+        <div class="verdict-sub-text" id="verdict-sub-text">-</div>
+      </div>
+
+      <!-- Probability Bars -->
+      <div class="prob-bars-section">
+        <div class="prob-row">
+          <span class="prob-label">Defect Probability</span>
+          <div class="prob-bar-bg">
+            <div id="prob-bar-defective" class="prob-bar-fill fill-defective" style="width: 0%;"></div>
+          </div>
+          <span id="prob-val-defective" class="prob-val">0%</span>
+        </div>
+        <div class="prob-row">
+          <span class="prob-label">Normal Probability</span>
+          <div class="prob-bar-bg">
+            <div id="prob-bar-ok" class="prob-bar-fill fill-ok" style="width: 0%;"></div>
+          </div>
+          <span id="prob-val-ok" class="prob-val">0%</span>
+        </div>
+      </div>
+
+      <!-- Defect Guidance Section (boxes list) -->
+      <div id="defect-guidance-section" class="result-section defect-guidance-card" style="display: none;">
+        <div class="guidance-header">
+          <h4 class="section-title">📍 Lokasi Area Defect Terindikasi</h4>
+          <span id="defect-count-badge" class="badge badge-danger">1 Area Terdeteksi</span>
+        </div>
+        <p class="guidance-desc">
+          Model mendeteksi anomali cacat permukaan (kotak merah + titik kuning pada citra kiri):
+        </p>
+        <div id="defect-locations-container" class="defect-locations-grid"></div>
+      </div>
+
+      <!-- Metadata Grid -->
+      <div class="result-section">
+        <h4 class="section-title">Metrik Citra & Metadata Inferensi</h4>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">ID Inspeksi</span>
+            <span id="meta-inspection-id" class="meta-value font-mono">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Versi Model</span>
+            <span id="meta-model-version" class="meta-value font-mono">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Waktu Pemrosesan</span>
+            <span id="meta-processing-time" class="meta-value font-mono">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Dimensi Asli</span>
+            <span id="meta-dimensions" class="meta-value font-mono">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Kecerahan (Mean)</span>
+            <span id="meta-brightness" class="meta-value font-mono">-</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Skor Ketajaman (Blur)</span>
+            <span id="meta-blur" class="meta-value font-mono">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Reasons -->
+      <div id="review-reasons-box" class="review-box" style="display: none;">
+        <h4 class="review-box-title">Catatan & Alasan Tinjauan:</h4>
+        <ul id="review-reasons-list" class="review-list"></ul>
+      </div>
+
+      <!-- Human QC Disclaimer -->
+      <div class="disclaimer-box" role="note">
+        <svg class="disclaimer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <p class="disclaimer-text">
+          <strong>Perhatian Operator QC:</strong> Hasil inspeksi ini merupakan analisis awal berbasis model eksperimental AI dan bukan jaminan mutu otomatis. Hasil ini wajib diverifikasi oleh personel/inspektur kendali mutu yang berkualifikasi.
+        </p>
+      </div>
+
+      <!-- Operator Review Form -->
+      <div class="operator-form-wrap">
+        <h4 class="section-title">Konfirmasi & Catatan Operator QC</h4>
+        <form id="operator-review-form" class="operator-form">
+          <div class="form-group">
+            <label for="operator-status-select" class="form-label">Hasil Verifikasi Operator:</label>
+            <select id="operator-status-select" class="form-select" required>
+              <option value="">-- Pilih Hasil Verifikasi QC --</option>
+              <option value="VERIFIED_OK">Disetujui: OK (Lolos Mutu)</option>
+              <option value="VERIFIED_DEFECTIVE">Disetujui: Defective (Tolak / Afkir)</option>
+              <option value="ESCALATED_ENGINEERING">Eskalasi: Perlu Uji Laboratorium / Rework</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="operator-note-input" class="form-label">Catatan Tambahan Operator (Opsional):</label>
+            <textarea id="operator-note-input" class="form-textarea" rows="2" placeholder="Nomor batch, catatan visual (porositas/blowhole/crack), nama pemeriksa..."></textarea>
+          </div>
+          <button type="submit" id="btn-save-review" class="btn btn-secondary btn-sm">Simpan Verifikasi Operator</button>
+          <span id="review-save-msg" class="review-save-msg"></span>
+        </form>
+      </div>
+    </div><!-- /result-content -->
+  </section>
+</div><!-- /content-grid -->
+
+<!-- History Log Section -->
+<section class="card history-card" aria-labelledby="history-heading">
+  <div class="card-header">
+    <div>
+      <h2 id="history-heading" class="card-title">Riwayat Inspeksi Terakhir</h2>
+      <p class="card-desc">Log metadata inspeksi dan verifikasi operator yang tersimpan di sistem lokal.</p>
+    </div>
+    <div class="history-actions" style="display: flex; gap: 0.5rem;">
+      <button type="button" id="btn-refresh-history" class="btn btn-outline btn-sm">Segarkan Data</button>
+      <a href="/api/history/export" class="btn btn-outline btn-sm" download="casting_inspections.csv">📥 Ekspor CSV</a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>ID Inspeksi</th>
+          <th>Status Model</th>
+          <th>Prediksi AI</th>
+          <th>Skor Model</th>
+          <th>Waktu (ms)</th>
+          <th>Verifikasi Operator</th>
+          <th>Catatan</th>
+        </tr>
+      </thead>
+      <tbody id="history-table-body">
+        <tr>
+          <td colspan="8" class="text-center text-muted">Memuat riwayat inspeksi...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

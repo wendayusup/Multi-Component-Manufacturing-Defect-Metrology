@@ -1,0 +1,264 @@
+<!-- 
+  =============================================================================
+  MODUL: METROLOGI CACAT BEARING RING
+  =============================================================================
+  Penanggung Jawab: Tim Bearing Ring
+  Model: Pure 7-Stage Deep CNN (512x512 CLAHE Grayscale) + Metrology Safety Interlock
+  =============================================================================
+-->
+<section class="workspace-area active" id="workspaceRing">
+
+  <!-- KOLOM KONTROL KIRI: Input, Banner Keputusan, Metrologi KPI -->
+  <aside class="control-column">
+
+    <!-- Card 1: Input & Kontrol Akuisisi Citra -->
+    <div class="card-box">
+      <div class="section-title-row">
+        <span class="section-main-title">Input Inspeksi</span>
+        <span class="section-meta-tag">512x512 CLAHE Grayscale</span>
+      </div>
+
+      <!-- Pemilih Mode Input (Unggah Berkas vs Kamera Langsung) -->
+      <div class="segmented-switch">
+        <button type="button" class="segmented-btn active" id="ringTabUpload"
+          onclick="setRingInputMode('upload')">Unggah Berkas</button>
+        <button type="button" class="segmented-btn" id="ringTabCam" onclick="setRingInputMode('camera')">Kamera
+          Langsung</button>
+      </div>
+
+      <!-- Area Unggah Berkas -->
+      <div id="ringUploadArea">
+        <input type="file" id="ringFileInput" accept="image/*" style="display: none;" onchange="handleRingFile(event)">
+        <div class="file-dropzone-box" onclick="document.getElementById('ringFileInput').click()">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"
+            style="margin: 0 auto; display: block;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <div class="dropzone-label">Pilih Citra Bearing Ring</div>
+          <div class="dropzone-hint">Klik untuk browse atau seret berkas permukaan logam ke sini</div>
+        </div>
+
+        <!-- Tombol Sampel Cepat untuk Pengujian Langsung -->
+        <div class="preset-buttons-row">
+          <button type="button" class="btn-preset defect" onclick="loadRingSample('defect')"
+            title="Muat sampel baret dari split pengujian">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Contoh Baret (Cacat)</span>
+          </button>
+          <button type="button" class="btn-preset normal" onclick="loadRingSample('normal')"
+            title="Muat sampel normal dari split pengujian">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Contoh Normal (OK)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Area Kamera Langsung -->
+      <div id="ringCameraArea" style="display: none;">
+        <div class="camera-live-box">
+          <video id="ringVideo" autoplay playsinline muted></video>
+        </div>
+        <div class="camera-action-row">
+          <button type="button" id="btnRingAuto" class="btn-primary-action btn-run-realtime" onclick="toggleRingAuto()">
+            <span id="ringAutoTxt">Mulai Real-Time</span>
+          </button>
+          <button type="button" class="btn-primary-action btn-take-snapshot" onclick="captureRingFrame()">Ambil
+            Foto</button>
+          <button type="button" class="btn-flip-cam" onclick="switchCameraFeed('ring')">↻</button>
+        </div>
+        <div class="input-control-row">
+          <span>Perangkat Kamera:</span>
+          <select id="ringCamSelect" class="form-select-control" onchange="onCameraDeviceChanged('ring', this.value)">
+            <option value="">Webcam / Kamera Virtual</option>
+          </select>
+        </div>
+        <div class="scan-rate-row" style="margin-top: 6px;">
+          <span>Frekuensi Pemindaian:</span>
+          <select class="scan-rate-select" onchange="setScanRate(this.value)">
+            <option value="600">600 ms (Cepat)</option>
+            <option value="800" selected>800 ms (Seimbang)</option>
+            <option value="1200">1200 ms (Stabil)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Hasil Keputusan QC (Eye-Level) -->
+    <div class="card-box" style="padding: 14px 16px;">
+      <div class="section-title-row" style="margin-bottom: 8px;">
+        <span class="section-main-title">Keputusan Akhir QC</span>
+        <span class="gate-meta-badge" id="rGateBadge">Menunggu Inspeksi</span>
+      </div>
+
+      <div class="decision-banner-box" id="rDecisionBanner">
+        <div class="decision-icon-wrap" id="rDecisionIcon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="decision-main-label" id="rDecisionTxt">STANDBY INSPEKSI</div>
+          <div class="decision-confidence-sub" id="rConfTxt">Siap menerima citra bearing ring</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Distribusi Probabilitas & Metrologi Kuantitatif -->
+    <div class="card-box">
+      <div class="section-title-row" style="margin-bottom: 8px;">
+        <span class="section-main-title">Keyakinan &amp; Metrologi</span>
+      </div>
+
+      <!-- Batang Probabilitas -->
+      <div class="prob-bars-container" style="margin-bottom: 12px;">
+        <div class="prob-bar-row">
+          <span class="prob-class-name">Probabilitas Cacat</span>
+          <div class="prob-track-bg">
+            <div id="rBarDefect" class="prob-bar-defect" style="width: 0%;"></div>
+          </div>
+          <span id="rValDefect" class="prob-percent-val">0.0%</span>
+        </div>
+        <div class="prob-bar-row">
+          <span class="prob-class-name">Probabilitas Normal</span>
+          <div class="prob-track-bg">
+            <div id="rBarNormal" class="prob-bar-normal" style="width: 0%;"></div>
+          </div>
+          <span id="rValNormal" class="prob-percent-val">0.0%</span>
+        </div>
+      </div>
+
+      <!-- 4-Grid KPI Metrologi -->
+      <div class="kpi-mini-grid">
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">KLASTER CACAT</div>
+          <div class="kpi-mini-val" id="rKpiDefects">0 <small>klaster</small></div>
+        </div>
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">GRID DISPARITAS</div>
+          <div class="kpi-mini-val" id="rKpiMatrix">512x512</div>
+        </div>
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">GRADIEN SOBEL</div>
+          <div class="kpi-mini-val" id="rKpiSobel">-</div>
+        </div>
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">LATENSI</div>
+          <div class="kpi-mini-val" id="rKpiLatency">0.00 ms</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Kepatuhan Standar QC Industri -->
+    <div class="card-box" style="padding: 12px 14px;">
+      <div class="disclaimer-box">
+        <strong>Protokol Industri QC:</strong> Keputusan divalidasi ganda melalui Dual-Gate Safety Interlock (Pure CNN +
+        Topografi Tekstur Sobel). Keputusan penolakan (REJECT) otomatis diprioritaskan saat disparitas permukaan
+        abnormal terkonfirmasi.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- KOLOM UTAMA KANAN: Dual Viewport (Citra Asli vs Output Analisis) -->
+  <main class="metrology-main-col">
+
+    <!-- Card Header: Pemilih Filter & Slider Resolusi Dinamis -->
+    <div class="card-box metrology-header-card">
+      <div class="section-title-row" style="margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h2 class="view-title-main">Inspeksi Metrologi Cacat Permukaan</h2>
+          <span id="rLatencyBadge" class="latency-pill-badge">0.00 ms</span>
+        </div>
+      </div>
+
+      <!-- Pemilih Tampilan Filter -->
+      <div class="filter-options-row">
+        <span class="filter-label-text">Pilih Tampilan:</span>
+        <button type="button" class="filter-btn-pill active" id="btnFilterDefect"
+          onclick="selectRingFilter('red_dots')">Deteksi Cacat (Bounding Box)</button>
+        <button type="button" class="filter-btn-pill" id="btnFilterMatrix"
+          onclick="selectRingFilter('chessboard_matrix')">Matriks Metrologi Disparitas</button>
+        <button type="button" class="filter-btn-pill" id="btnFilterClahe"
+          onclick="selectRingFilter('filter_clahe')">Normalisasi CLAHE</button>
+      </div>
+
+      <!-- Slider Resolusi Matriks Dinamis -->
+      <div class="matrix-slider-wrap">
+        <div class="matrix-slider-header">
+          <span class="matrix-slider-title">Resolusi Matriks Metrologi:</span>
+          <span id="activeResLabel" class="matrix-slider-badge">512x512 aktif (262.144 sel)</span>
+        </div>
+        <div class="slider-control-block">
+          <input type="range" class="matrix-range" id="ringMatrixSlider" min="0" max="5" step="1" value="2"
+            oninput="onMatrixSliderInput(this.value)" onchange="onMatrixSliderChange(this.value)">
+          <div class="slider-ticks-row">
+            <span class="slider-tick-item" style="left: calc(8px + 0.0 * (100% - 16px));" onclick="setSliderIndex(0)">128x128</span>
+            <span class="slider-tick-item" style="left: calc(8px + 0.2 * (100% - 16px));" onclick="setSliderIndex(1)">256x256</span>
+            <span class="slider-tick-item active" style="left: calc(8px + 0.4 * (100% - 16px));" onclick="setSliderIndex(2)">512x512</span>
+            <span class="slider-tick-item" style="left: calc(8px + 0.6 * (100% - 16px));" onclick="setSliderIndex(3)">1024x1024</span>
+            <span class="slider-tick-item" style="left: calc(8px + 0.8 * (100% - 16px));" onclick="setSliderIndex(4)">2048x2048</span>
+            <span class="slider-tick-item" style="left: calc(8px + 1.0 * (100% - 16px));" onclick="setSliderIndex(5)">4096x4096</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Viewport Grid: Citra Asli vs Output Metrologi -->
+    <div class="dual-viewport-grid">
+      <!-- Frame 1: Citra Asli Alami -->
+      <div class="display-viewport-card">
+        <div class="viewport-card-bar">
+          <span class="viewport-card-title">Citra Asli Alami</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-frame-zoom" onclick="zoomImg('rImg1', 'Citra Asli Bearing Ring')">Perbesar
+              Asli</button>
+            <span class="frame-badge-tag badge-input">INPUT FEED</span>
+          </div>
+        </div>
+        <div class="viewport-image-box" onclick="zoomImg('rImg1', 'Citra Asli Bearing Ring')">
+          <img id="rImg1" style="display:none;" alt="Sumber Citra Ring">
+          <div id="rPh1" class="viewport-empty-text">Menunggu citra bearing ring...</div>
+        </div>
+      </div>
+
+      <!-- Frame 2: Tampilan Output Metrologi -->
+      <div class="display-viewport-card glow-pass" id="rCardOutput">
+        <div class="viewport-card-bar">
+          <span class="viewport-card-title" id="rOutputTitle">Deteksi Cacat (Bounding Box pada Citra Asli)</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-frame-zoom"
+              onclick="zoomImg('rImg2', document.getElementById('rOutputTitle').innerText)">Perbesar HD</button>
+            <span class="frame-badge-tag badge-output" id="rOutputTag">OUTPUT QC</span>
+          </div>
+        </div>
+        <div class="viewport-image-box" onclick="zoomImg('rImg2', document.getElementById('rOutputTitle').innerText)">
+          <img id="rImg2" style="display:none;" alt="Output Metrologi Ring">
+          <div id="rPh2" class="viewport-empty-text">Hasil analisis akan muncul di sini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deskripsi Teknis Metode -->
+    <div class="technical-description-box">
+      <div class="desc-top-row">
+        <span class="desc-bold-title" id="rDescTitle">Deteksi Cacat (Bounding Box pada Citra Asli)</span>
+        <span class="desc-tag-pill" id="rDescTag">Metrologi Standar QC</span>
+      </div>
+      <div class="desc-italic-sub" id="rDescSub">Citra Asli Bebas Blur • Deterministic Anomaly Clustering</div>
+      <div class="desc-paragraph-text" id="rDescText">
+        Kotak pembatas merah diturunkan langsung dari klaster nilai anomali tinggi pada matriks metrologi disparitas
+        tanpa efek blur latar belakang buatan, menjaga keaslian detail fisik produk.
+      </div>
+    </div>
+
+  </main>
+</section>

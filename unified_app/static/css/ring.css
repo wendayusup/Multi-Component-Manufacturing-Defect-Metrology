@@ -1,0 +1,233 @@
+/*
+ * =============================================================================
+ * RING MODULE — styles.css
+ * =============================================================================
+ * Owner : Ring Inspection team (Bearing Ring Surface Defect)
+ * Scope : ONLY styles used inside #workspaceRing and Ring-specific components.
+ *
+ * Base shared styles (navbar, card-box, buttons, modals) are in:
+ *   static/css/base.css  — do not duplicate those here.
+ * =============================================================================
+ */
+
+/* -------------------------------------------------------------------------
+ * KPI Mini Boxes (4-cell metric grid in left column)
+ * -------------------------------------------------------------------------*/
+.kpi-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.kpi-mini-box {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.kpi-mini-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: .02em;
+  margin-bottom: 4px;
+}
+
+.kpi-mini-val {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+/* -------------------------------------------------------------------------
+ * Gate / Model Meta Badge (shown next to verdict)
+ * -------------------------------------------------------------------------*/
+.gate-meta-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  letter-spacing: .03em;
+}
+
+/* -------------------------------------------------------------------------
+ * Matrix Resolution Slider (dynamic grid_dim selector)
+ * -------------------------------------------------------------------------*/
+.matrix-slider-wrap {
+  margin-top: 10px;
+  background: #F8FAFC;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.matrix-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.matrix-slider-title {
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.matrix-slider-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.slider-control-block {
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+input[type="range"].matrix-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 4px;
+  outline: none;
+  display: block;
+}
+
+input[type="range"].matrix-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+input[type="range"].matrix-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Tick labels below slider with exact alignment matching slider thumb */
+.slider-ticks-row {
+  position: relative;
+  width: 100%;
+  height: 18px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.slider-tick-item {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 0.70rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: color .15s;
+}
+
+.slider-tick-item:hover {
+  color: var(--color-text-primary);
+}
+
+.slider-tick-item.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* -------------------------------------------------------------------------
+ * Quick Preset Buttons (Sample: Defect / Normal)
+ * -------------------------------------------------------------------------*/
+.preset-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.btn-preset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+
+.btn-preset:hover { background: var(--color-surface-muted); }
+
+.btn-preset.defect { border-color: var(--color-reject-border); color: var(--color-reject); background: var(--color-reject-bg); }
+.btn-preset.defect:hover { background: #FEE2E2; }
+
+.btn-preset.normal { border-color: var(--color-pass-border); color: var(--color-pass); background: var(--color-pass-bg); }
+.btn-preset.normal:hover { background: #D1FAE5; }
+
+/* -------------------------------------------------------------------------
+ * QC Disclaimer card (bottom of left column)
+ * -------------------------------------------------------------------------*/
+.disclaimer-box {
+  background: var(--color-warn-bg);
+  border: 1px solid var(--color-warn-border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.74rem;
+  color: #92400E;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------------------
+ * Scan Rate control row
+ * -------------------------------------------------------------------------*/
+.scan-rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.80rem;
+  color: var(--color-text-muted);
+  gap: 8px;
+}
+
+.scan-rate-select {
+  font-size: 0.78rem;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}

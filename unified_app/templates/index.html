@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automated Visual Inspection — Stasiun Metrologi Cacat Manufaktur</title>
+
+  <!-- Google Font: Poppins (Clean, Modern, Enterprise Legibility) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ======================================================================= -->
+  <!-- MODULAR CSS STYLESHEETS                                                 -->
+  <!-- ======================================================================= -->
+  <!-- 1. Global Base Styles (Design tokens, Navbar, Cards, Shared Utilities) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <!-- 2. Ring Module Specific Styles (Owned by Ring Team) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ring.css') }}">
+  <!-- 3. Bearing Module Specific Styles (Owned by Bearing/Casting Team) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bearing.css') }}">
+  <!-- 4. Plastic Module Specific Styles (Owned by Plastic Team) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plastic.css') }}">
+</head>
+
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP NAVBAR (Modern SaaS Header - Pure White, High Legibility)         -->
+  <!-- ========================================================================= -->
+  <header class="app-navbar">
+    <div class="nav-brand-group">
+      <div class="brand-title-box">
+        <h1 class="brand-main-title">Automated Visual Inspection</h1>
+        <span class="brand-sub-tag">Stasiun Metrologi Cacat Manufaktur</span>
+      </div>
+    </div>
+
+    <!-- 3 MODULE NAVIGATION TABS: RING, BEARING, PLASTIC -->
+    <nav class="nav-tabs-container">
+      <button type="button" class="nav-tab-btn active" id="btnNavRing" onclick="switchNavbarModule('ring')">
+        <span>Ring</span>
+      </button>
+      <button type="button" class="nav-tab-btn" id="btnNavBearing" onclick="switchNavbarModule('bearing')">
+        <span>Bearing</span>
+      </button>
+      <button type="button" class="nav-tab-btn" id="btnNavPlastic" onclick="switchNavbarModule('plastic')">
+        <span>Plastic</span>
+      </button>
+    </nav>
+
+    <!-- RIGHT ACTIONS: Academic Evaluation & Benchmarks Modal Trigger -->
+    <div class="nav-right-actions">
+      <button type="button" class="btn-benchmarks" id="btnBenchmarksNav" onclick="openS2Modal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <span>Tolok Ukur Model (S2)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MODULAR WORKSPACE CONTAINERS (One per Team)                            -->
+  <!-- ========================================================================= -->
+
+  <!-- Tab 1: Bearing Ring Metrology Workspace (Owned by Ring Team) -->
+  {% include 'modules/ring/workspace.html' %}
+
+  <!-- Tab 2: Casting & Bearing Defect Workspace (Owned by Bearing/Casting Team) -->
+  {% include 'modules/bearing/workspace.html' %}
+
+  <!-- Tab 3: Plastic Injection Defect Workspace (Owned by Plastic Team) -->
+  {% include 'modules/plastic/workspace.html' %}
+
+  <!-- ========================================================================= -->
+  <!-- 3. SHARED MODALS                                                          -->
+  <!-- ========================================================================= -->
+
+  <!-- Lightbox Zoom Modal (High-Resolution Visual Inspection) -->
+  <div id="zoomModal" class="zoom-lightbox" onclick="closeZoom(event)">
+    <div style="width: 100%; max-width: 880px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <span id="zoomTitle" style="font-size: 1.00rem; font-weight: 700; color: #FFFFFF;">Detail Tampilan Citra</span>
+      <button type="button" onclick="closeZoomDirect()" style="background: none; border: none; color: #E2E8F0; font-size: 1.5rem; cursor: pointer;">✕</button>
+    </div>
+    <img id="zoomImg" class="zoom-lightbox-img" src="" alt="Zoom Frame" onclick="event.stopPropagation()">
+  </div>
+
+  <!-- S2 Academic Evaluation & Benchmark Figures Modal -->
+  <div id="s2Modal" class="s2-dialog-modal" onclick="closeS2Modal(event)">
+    <div class="s2-dialog-box" onclick="event.stopPropagation()">
+      <div style="padding: 16px 22px; background: #FFFFFF; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
+        <div>
+          <div style="font-size: 1.10rem; font-weight: 700; color: var(--color-text-primary);">Evaluasi Riset Akademik &amp; Tolok Ukur Model</div>
+          <div style="font-size: 0.80rem; color: var(--color-text-muted);">Validasi Ilmiah Independen &bull; Analisis Kinerja Metrologi AI</div>
+        </div>
+        <button type="button" onclick="closeS2ModalDirect()" style="background: none; border: none; color: var(--color-text-muted); font-size: 1.5rem; cursor: pointer;">✕</button>
+      </div>
+      <div style="padding: 22px; overflow-y: auto; font-size: 0.86rem; background: #F8FAFC;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div style="background: #FFFFFF; padding: 14px; border-radius: 12px; border: 1px solid var(--color-border); text-align: center; box-shadow: var(--shadow-subtle);">
+            <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px;">Confusion Matrix: Ring (Data Uji)</div>
+            <img src="/api/analytics/ring/confusion_matrix" alt="Confusion Matrix" style="width: 100%; max-height: 230px; object-fit: contain;">
+          </div>
+          <div style="background: #FFFFFF; padding: 14px; border-radius: 12px; border: 1px solid var(--color-border); text-align: center; box-shadow: var(--shadow-subtle);">
+            <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px;">Riwayat Pelatihan: Pure CNN 512x512</div>
+            <img src="/api/analytics/ring/training_history" alt="Kurva Pelatihan" style="width: 100%; max-height: 230px; object-fit: contain;">
+          </div>
+        </div>
+        <div style="margin-top: 16px; background: #FFFFFF; padding: 16px; border-radius: 12px; border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
+          <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px; font-size: 0.92rem;">Spesifikasi Kinerja Metrologi:</div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+            <tr style="border-bottom: 1px solid #E2E8F0;"><td style="padding: 7px; color: var(--color-text-muted);">Akurasi Pengujian (Test Accuracy)</td><td style="padding: 7px; font-weight: 700; color: #059669;">95.83%</td></tr>
+            <tr style="border-bottom: 1px solid #E2E8F0;"><td style="padding: 7px; color: var(--color-text-muted);">Presisi Cacat (Defect Precision)</td><td style="padding: 7px; font-weight: 700; color: #059669;">100.0% (Nol Salah Tolak / Zero False Reject)</td></tr>
+            <tr style="border-bottom: 1px solid #E2E8F0;"><td style="padding: 7px; color: var(--color-text-muted);">Recall Cacat (Defect Recall)</td><td style="padding: 7px; font-weight: 700; color: #059669;">91.67%</td></tr>
+            <tr><td style="padding: 7px; color: var(--color-text-muted);">Resolusi Matriks Metrologi</td><td style="padding: 7px; font-weight: 700; color: #2563EB;">512x512 Sel Disparitas (262.144 Nilai Terukur)</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. MODULAR JAVASCRIPT CONTROLLERS                                         -->
+  <!-- ========================================================================= -->
+  <!-- 1. Shared App Controller (Routing, Camera, Lightbox, Benchmarks) -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <!-- 2. Ring Module Controller (Ring Inspection Logic) -->
+  <script src="{{ url_for('static', filename='js/ring.js') }}"></script>
+  <!-- 3. Bearing Module Controller (Casting Inspection Logic) -->
+  <script src="{{ url_for('static', filename='js/bearing.js') }}"></script>
+  <!-- 4. Plastic Module Controller (Plastic Inspection Logic) -->
+  <script src="{{ url_for('static', filename='js/plastic.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,185 @@
+<!-- 
+  =============================================================================
+  MODUL: WORKSPACE INSPEKSI CACAT CORAN / BEARING
+  =============================================================================
+  Pemilik: Tim Inspeksi Cacat Coran Logam & Bearing
+  Model: Sequential CNN Pure-NumPy (Grayscale 64x64) + Grad-CAM Weakly-Supervised
+  Berkas terkait modul ini:
+    - Logic Adapter : unified_app/adapters/bearing_adapter.py
+    - Stylesheet    : static/css/bearing.css
+    - Controller JS : static/js/bearing.js
+  =============================================================================
+-->
+<section class="workspace-area" id="workspaceBearing">
+
+  <!-- KOLOM KONTROL KIRI: Input, Sensitivitas, Penilaian Kualitas -->
+  <aside class="control-column">
+
+    <!-- Card 1: Kontrol Input Inspeksi -->
+    <div class="card-box">
+      <div class="section-title-row">
+        <span class="section-main-title">Input Inspeksi</span>
+        <span class="section-meta-tag">64x64 Pure NumPy CNN</span>
+      </div>
+
+      <!-- Area Unggah / Dropzone Citra Coran Logam (Secondary Module) -->
+      <div id="castUploadArea">
+        <input type="file" id="castFileInput" accept="image/*" style="display: none;" onchange="handleCastFile(event)">
+        <div class="file-dropzone-box" onclick="document.getElementById('castFileInput').click()">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" style="margin: 0 auto; display: block;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <div class="dropzone-label">Pilih Citra Coran Logam</div>
+          <div class="dropzone-hint">Klik untuk memilih atau seret citra coran logam ke sini</div>
+        </div>
+
+        <!-- Tombol Contoh Cepat -->
+        <div class="bearing-preset-row">
+          <button type="button" class="btn-preset defect" onclick="loadCastSample('defect')" title="Muat sampel coran cacat">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>Sampel Cacat</span>
+          </button>
+          <button type="button" class="btn-preset normal" onclick="loadCastSample('normal')" title="Muat sampel coran normal">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Sampel OK</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Pemilih Kebijakan Sensitivitas -->
+    <div class="card-box">
+      <div class="section-title-row" style="margin-bottom: 8px;">
+        <span class="section-main-title">Kebijakan Sensitivitas QC</span>
+      </div>
+      <div class="segmented-switch-sensitivity">
+        <button type="button" class="segmented-btn active" id="sensStd" onclick="setCastSensitivity('standard')">Standar</button>
+        <button type="button" class="segmented-btn" id="sensHigh" onclick="setCastSensitivity('high')">Tinggi</button>
+        <button type="button" class="segmented-btn" id="sensUltra" onclick="setCastSensitivity('ultra')">Ultra</button>
+      </div>
+    </div>
+
+    <!-- Card 3: Metrik Skrining Kualitas Citra -->
+    <div class="card-box">
+      <div class="section-title-row" style="margin-bottom: 8px;">
+        <span class="section-main-title">Penilaian Kualitas Citra</span>
+      </div>
+      <div class="quality-metric-row">
+        <span>Skor Blur Laplacian:</span>
+        <span class="quality-metric-val" id="castBlurVal">-</span>
+      </div>
+      <div class="quality-metric-row">
+        <span>Kecerahan Rata-rata:</span>
+        <span class="quality-metric-val" id="castBrightVal">-</span>
+      </div>
+      <div class="quality-metric-row">
+        <span>Status Ketidakpastian:</span>
+        <span class="quality-metric-val" id="castUncertVal">-</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- KOLOM UTAMA KANAN: Tampilan Visual & Evaluasi Output -->
+  <main class="metrology-main-col">
+
+    <!-- Header Card: Pilihan Filter Visual -->
+    <div class="card-box metrology-header-card">
+      <div class="section-title-row" style="margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h2 class="view-title-main">Lokalisasi Cacat Coran (Grad-CAM)</h2>
+          <span id="cLatencyBadge" class="latency-pill-badge">0.00 ms</span>
+        </div>
+      </div>
+
+      <div class="filter-options-row">
+        <span class="filter-label-text">Pilih Tampilan Output:</span>
+        <button type="button" class="filter-btn-pill active" id="btnCastCam" onclick="selectCastFilter('grad_cam')">Kotak Pembatas Grad-CAM</button>
+        <button type="button" class="filter-btn-pill" id="btnCastMatrix" onclick="selectCastFilter('anomaly_matrix')">Matriks Anomali Permukaan 128x128</button>
+      </div>
+    </div>
+
+    <!-- Dual Viewport Grid: Citra Asli vs Output Lokalisasi -->
+    <div class="dual-viewport-grid">
+      <!-- Frame 1: Citra Asli Coran -->
+      <div class="display-viewport-card">
+        <div class="viewport-card-bar">
+          <span class="viewport-card-title">Tampilan Citra Asli Coran</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-frame-zoom" onclick="zoomImg('cImg1', 'Citra Asli Coran')">Perbesar Asli</button>
+            <span class="frame-badge-tag badge-input">CITRA INPUT</span>
+          </div>
+        </div>
+        <div class="viewport-image-box" onclick="zoomImg('cImg1', 'Citra Asli Coran')">
+          <img id="cImg1" style="display:none;" alt="Citra Input Coran">
+          <div id="cPh1" class="viewport-empty-text">Menunggu citra coran logam...</div>
+        </div>
+      </div>
+
+      <!-- Frame 2: Output Grad-CAM / Matriks -->
+      <div class="display-viewport-card glow-pass" id="cCardOutput">
+        <div class="viewport-card-bar">
+          <span class="viewport-card-title" id="cOutputTitle">Lokalisasi Cacat Grad-CAM</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-frame-zoom" onclick="zoomImg('cImg2', document.getElementById('cOutputTitle').innerText)">Perbesar HD</button>
+            <span class="frame-badge-tag badge-output" id="cOutputTag">OUTPUT QC</span>
+          </div>
+        </div>
+        <div class="viewport-image-box" onclick="zoomImg('cImg2', document.getElementById('cOutputTitle').innerText)">
+          <img id="cImg2" style="display:none;" alt="Output Coran">
+          <div id="cPh2" class="viewport-empty-text">Kotak pembatas cacat akan muncul di sini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deskripsi Teknis Metode -->
+    <div class="technical-description-box">
+      <div class="desc-top-row">
+        <span class="desc-bold-title" id="cDescTitle">Lokalisasi Cacat Weakly-Supervised</span>
+        <span class="desc-tag-pill">Grad-CAM Pure-NumPy</span>
+      </div>
+      <div class="desc-italic-sub">Ekstraksi Kotak Pembatas Tanpa Framework Object Detection Eksternal</div>
+      <div class="desc-paragraph-text" id="cDescText">
+        Grad-CAM menghitung gradien aktivasi dari lapisan konvolusi terakhir untuk memetakan titik anomali cacat mikro di seluruh permukaan coran logam.
+      </div>
+    </div>
+
+    <!-- Banner Keputusan Akhir QC -->
+    <div class="decision-banner-box" id="cDecisionBanner">
+      <div class="decision-icon-wrap" id="cDecisionIcon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+      <div style="flex: 1; min-width: 0;">
+        <div class="decision-main-label" id="cDecisionTxt">STANDBY INSPEKSI</div>
+        <div class="decision-confidence-sub" id="cConfTxt">Siap melakukan inspeksi coran logam</div>
+      </div>
+    </div>
+
+    <!-- Bar Distribusi Probabilitas -->
+    <div class="card-box" style="padding: 12px 18px;">
+      <div class="prob-bars-container">
+        <div class="prob-bar-row">
+          <span class="prob-class-name">Probabilitas Cacat (Defect)</span>
+          <div class="prob-track-bg">
+            <div id="cBarDefect" class="prob-bar-defect" style="width: 0%;"></div>
+          </div>
+          <span id="cValDefect" class="prob-percent-val">0.0%</span>
+        </div>
+        <div class="prob-bar-row">
+          <span class="prob-class-name">Probabilitas Normal (OK)</span>
+          <div class="prob-track-bg">
+            <div id="cBarOk" class="prob-bar-normal" style="width: 0%;"></div>
+          </div>
+          <span id="cValOk" class="prob-percent-val">0.0%</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</section>
