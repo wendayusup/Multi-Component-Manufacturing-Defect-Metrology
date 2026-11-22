@@ -10,7 +10,7 @@ A production-grade, self-contained automated visual inspection system integratin
 This platform consolidates three independent inspection modules into a unified enterprise interface:
 1. **Bearing Ring Inspection (`ring`)**: High-resolution 512x512 surface metrology powered by a **Pure 7-Stage Deep CNN** (PyTorch) with Dual-Gate Safety Interlock (CNN + Sobel Texture Gradient) and 262,144 analytical cells disparity matrix (**95.83% accuracy, 100% defect precision / zero false rejects**).
 2. **Casting Metal Inspection (`bearing`)**: Built from scratch using a **Pure-NumPy Sequential CNN** (64x64 Grayscale, zero external deep learning framework) with weakly-supervised Grad-CAM defect localization and 128x128 Surface Anomaly Matrix (**92.80% accuracy**).
-3. **Plastic Defect Inspection (`plastic`)**: Standby modular scaffold ready for third team member integration.
+3. **Plastic Defect Inspection (`plastic`)**: Multi-scale **Feature Pyramid Network (FPN) CNN** (PyTorch, 768x768 scale-preserved canvas padding) with center-point regression, bounding box geometry heads, and Non-Maximum Suppression (**IoU 0.45 NMS**).
 
 ---
 
@@ -47,7 +47,11 @@ Unified_Inspection/
 │   │   ├── tests/                            # 7 automated unit test suites
 │   │   └── run_local.py                      # Standalone Casting testing web app
 │   │
-│   └── plastic_inspection/                   # [PLASTIC TEAM] Placeholder scaffold
+│   └── plastic_inspection/                   # [PLASTIC TEAM] Model dev & weights
+│       ├── models/detector.py                # FPN Single-Class CNN architecture
+│       ├── models/plastic_defect_detector.pt # Trained PyTorch checkpoint (877 KB)
+│       ├── models/environment.json           # Model metadata and input parameters
+│       └── samples/                          # Defect and normal sample datasets
 │
 └── unified_app/                               # UNIFIED WEB PLATFORM & INFERENCE ENGINE
     ├── __init__.py                           # Flask application factory (`create_app`)
@@ -57,7 +61,7 @@ Unified_Inspection/
     │   ├── base.py                           # BaseInspectionAdapter abstract interface
     │   ├── ring_adapter.py                   # Connects model_development/ring_inspection
     │   ├── bearing_adapter.py                # Connects model_development/bearing_inspection
-    │   └── plastic_adapter.py                # Standby scaffold for Plastic
+    │   └── plastic_adapter.py                # Connects model_development/plastic_inspection
     │
     ├── routes/                               # API & Page Routing
     │   ├── pages.py                          # Single Page Application root route (`/`)
@@ -161,9 +165,12 @@ python run_local.py
 ### Inference Endpoints
 - `POST /api/v1/inspect/ring` - Run Bearing Ring inspection (Accepts multipart image file or base64 JSON, with `grid_dim` parameter).
 - `POST /api/v1/inspect/bearing` - Run Casting Metal inspection (Accepts multipart image file or base64 JSON, with `sensitivity` parameter).
+- `POST /api/v1/inspect/plastic` - Run Plastic Defect inspection (Accepts multipart image file or base64 JSON).
+- `POST /api/v1/inspect/all` - Sequential cross-module inspection on a single component image.
 
 ### Sample Presets & Evaluation Figures
 - `GET /api/sample/ring/<defect|normal>` - Preset sample images for Ring testing.
 - `GET /api/sample/bearing/<defect|normal>` - Preset sample images for Casting testing.
+- `GET /api/sample/plastic/<defect|normal>` - Preset sample images for Plastic testing.
 - `GET /api/analytics/ring/confusion_matrix` - Serves academic confusion matrix plot.
 - `GET /api/analytics/ring/training_history` - Serves academic training loss curve plot.
