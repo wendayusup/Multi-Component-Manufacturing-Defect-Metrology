@@ -12,7 +12,7 @@ import random
 from pathlib import Path
 from flask import Blueprint, request, jsonify, send_file
 from ..services.model_registry import get_model_registry
-from ..config import WORKSPACE_ROOT, RING_DIR, CASTING_DIR
+from ..config import WORKSPACE_ROOT, RING_DIR, CASTING_DIR, PLASTIC_DIR
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -231,9 +231,17 @@ def get_sample_image(sample_type, module_id="ring"):
         module_id, sample_type = sample_type, module_id
 
     sample_type_clean = (sample_type or "").lower()
+    valid_defect_types = {"defect", "defective", "nok", "baret", "cacat"}
+    valid_normal_types = {"normal", "ok", "pass", "clean"}
+    if sample_type_clean not in valid_defect_types and sample_type_clean not in valid_normal_types:
+        return jsonify({
+            "error": f"Invalid sample type '{sample_type}'. Must be 'defect' or 'normal'.",
+        }), 404
+
+    is_defect_sample = sample_type_clean in valid_defect_types
 
     if module_id == "ring":
-        subfolder = "defect_ring" if sample_type_clean in ["defect", "defective"] else "normal_ring"
+        subfolder = "defect_ring" if is_defect_sample else "normal_ring"
         possible_folders = [
             RING_DIR / "dataset_split" / "test" / subfolder,
             RING_DIR / "dataset_split" / "val" / subfolder,
@@ -254,7 +262,7 @@ def get_sample_image(sample_type, module_id="ring"):
                     return resp
 
     elif module_id == "bearing":
-        subfolder = "def_front" if sample_type_clean in ["defect", "defective"] else "ok_front"
+        subfolder = "def_front" if is_defect_sample else "ok_front"
         possible_folders = [
             CASTING_DIR / "casting_512x512" / "casting_512x512" / subfolder,
             CASTING_DIR / "casting_data" / "test" / subfolder,
@@ -265,6 +273,25 @@ def get_sample_image(sample_type, module_id="ring"):
         for folder in possible_folders:
             if folder.exists():
                 files = list(folder.glob("*.jpeg")) + list(folder.glob("*.jpg")) + list(folder.glob("*.png"))
+                if files:
+                    selected = random.choice(files)
+                    resp = send_file(str(selected), mimetype="image/jpeg")
+                    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                    resp.headers["Pragma"] = "no-cache"
+                    resp.headers["Expires"] = "0"
+                    return resp
+
+    elif module_id == "plastic":
+        subfolder = "defect" if is_defect_sample else "normal"
+        possible_folders = [
+            PLASTIC_DIR / "samples" / subfolder,
+            WORKSPACE_ROOT / "PlasticDefectionWeb" / "samples" / subfolder,
+            Path.cwd() / "model_development" / "plastic_inspection" / "samples" / subfolder,
+            Path.cwd() / "Unified_Inspection" / "model_development" / "plastic_inspection" / "samples" / subfolder,
+        ]
+        for folder in possible_folders:
+            if folder.exists():
+                files = list(folder.glob("*.jpg")) + list(folder.glob("*.jpeg")) + list(folder.glob("*.png"))
                 if files:
                     selected = random.choice(files)
                     resp = send_file(str(selected), mimetype="image/jpeg")

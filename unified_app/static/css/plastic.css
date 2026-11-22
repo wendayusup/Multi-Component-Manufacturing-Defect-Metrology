@@ -3,24 +3,60 @@
  * PLASTIC DEFECT MODULE — styles.css
  * =============================================================================
  * Owner : Plastic Injection Molding Defect Inspection team
- * Scope : ONLY styles used inside #workspacePlastic and future Plastic UI components.
- *
- * Base shared styles are in:
- *   static/css/base.css — do not duplicate those here.
+ * Scope : ONLY styles used inside #workspacePlastic and Plastic UI components.
  * =============================================================================
  */
 
-.plastic-placeholder-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+.plastic-preset-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
 }
 
-.plastic-action-buttons {
-  display: inline-flex;
-  gap: 12px;
-  margin-top: 16px;
+/* Tabel Koordinat Bounding Box Cacat */
+.plastic-defect-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.plastic-defect-table th {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.plastic-defect-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+.plastic-defect-table tr:hover td {
+  background: #F8FAFC;
+}
+
+.plastic-defect-id-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #FEE2E2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+}
+
+.plastic-coord-code {
+  font-family: monospace;
+  font-size: 0.78rem;
+  background: #F1F5F9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
 }

@@ -1,9 +1,9 @@
 <!-- 
   =============================================================================
-  MODUL: WORKSPACE INSPEKSI CACAT INJECTION MOLDING PLASTIK (STANDBY)
+  MODUL: WORKSPACE INSPEKSI CACAT PRODUK INJEKSI PLASTIK
   =============================================================================
-  Pemilik: Tim Inspeksi Cacat Plastik
-  Model: Standby (Menunggu penyerahan model dari rekan tim)
+  Pemilik: Tim Inspeksi Cacat Produk Plastik (PlasticDefectionWeb)
+  Model: Feature Pyramid Single-Class CNN (Center & Geometry Heads + NMS)
   Berkas terkait modul ini:
     - Logic Adapter : unified_app/adapters/plastic_adapter.py
     - Stylesheet    : static/css/plastic.css
@@ -11,27 +11,207 @@
   =============================================================================
 -->
 <section class="workspace-area" id="workspacePlastic">
-  <div class="standby-card-center">
-    <div class="standby-icon-circle">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
+
+  <!-- KOLOM KONTROL KIRI: Input, Keputusan QC, Metrik & Kepatuhan -->
+  <aside class="control-column">
+
+    <!-- Card 1: Kontrol Input Inspeksi -->
+    <div class="card-box">
+      <div class="section-title-row">
+        <span class="section-main-title">Input Inspeksi</span>
+        <span class="section-meta-tag">768x768 PyTorch CNN</span>
+      </div>
+
+      <!-- Area Unggah / Dropzone Citra Plastik (Secondary Module) -->
+      <div id="plasticUploadArea">
+        <input type="file" id="plasticFileInput" accept="image/jpeg,image/png" style="display: none;" onchange="handlePlasticFile(event)">
+        <div class="file-dropzone-box" onclick="document.getElementById('plasticFileInput').click()">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" style="margin: 0 auto; display: block;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <div class="dropzone-label">Pilih Citra Produk Plastik</div>
+          <div class="dropzone-hint">Klik untuk memilih atau seret citra JPG/PNG ke sini (maks. 16 MP)</div>
+        </div>
+
+        <!-- Tombol Contoh Cepat -->
+        <div class="plastic-preset-row">
+          <button type="button" class="btn-preset defect" onclick="loadPlasticSample('defect')" title="Muat sampel plastik cacat">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>Sampel Cacat</span>
+          </button>
+          <button type="button" class="btn-preset normal" onclick="loadPlasticSample('normal')" title="Muat sampel plastik normal">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Sampel OK</span>
+          </button>
+        </div>
+      </div>
     </div>
-    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px;">
-      Modul Inspeksi Cacat Plastik
-    </h2>
-    <p style="font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 24px;">
-      Arsitektur adaptor integrasi dan kerangka antarmuka telah dikonfigurasi dan siap. Modul ini saat ini berstatus <strong>Standby</strong> menunggu pengiriman bobot model terlatih dan aset dataset dari rekan tim.
-    </p>
-    <div class="plastic-action-buttons">
-      <button type="button" class="btn-primary-action" onclick="switchNavbarModule('ring')" style="padding: 10px 22px; background: #2563EB; color: #FFFFFF;">
-        Buka Inspeksi Ring Bearing
-      </button>
-      <button type="button" class="btn-primary-action" onclick="switchNavbarModule('bearing')" style="padding: 10px 22px; background: #0F172A; color: #FFFFFF;">
-        Buka Inspeksi Coran Logam
-      </button>
+
+    <!-- Card 2: Hasil Keputusan QC (Eye-Level) -->
+    <div class="card-box" style="padding: 14px 16px;">
+      <div class="section-title-row" style="margin-bottom: 8px;">
+        <span class="section-main-title">Keputusan Akhir QC</span>
+        <span class="gate-meta-badge" id="pGateBadge">Menunggu Inspeksi</span>
+      </div>
+
+      <div class="decision-banner-box" id="pDecisionBanner">
+        <div class="decision-icon-wrap" id="pDecisionIcon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="decision-main-label" id="pDecisionTxt">STANDBY INSPEKSI</div>
+          <div class="decision-confidence-sub" id="pConfTxt">Siap menerima citra produk plastik</div>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- Card 3: Distribusi Probabilitas & Metrik Kuantitatif -->
+    <div class="card-box">
+      <div class="section-title-row" style="margin-bottom: 8px;">
+        <span class="section-main-title">Keyakinan &amp; Metrik Deteksi</span>
+      </div>
+
+      <!-- Batang Probabilitas -->
+      <div class="prob-bars-container" style="margin-bottom: 12px;">
+        <div class="prob-bar-row">
+          <span class="prob-class-name">Probabilitas Cacat</span>
+          <div class="prob-track-bg">
+            <div id="pBarDefect" class="prob-bar-defect" style="width: 0%;"></div>
+          </div>
+          <span id="pValDefect" class="prob-percent-val">0.0%</span>
+        </div>
+        <div class="prob-bar-row">
+          <span class="prob-class-name">Probabilitas Normal</span>
+          <div class="prob-track-bg">
+            <div id="pBarNormal" class="prob-bar-normal" style="width: 0%;"></div>
+          </div>
+          <span id="pValNormal" class="prob-percent-val">0.0%</span>
+        </div>
+      </div>
+
+      <!-- 4-Grid KPI Metrik -->
+      <div class="kpi-mini-grid">
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">KOTAK CACAT</div>
+          <div class="kpi-mini-val" id="pKpiDefects">0 <small>area</small></div>
+        </div>
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">AMBANG MODEL</div>
+          <div class="kpi-mini-val" id="pKpiThreshold">0.2781</div>
+        </div>
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">RESOLUSI CITRA</div>
+          <div class="kpi-mini-val" id="pKpiDim">-</div>
+        </div>
+        <div class="kpi-mini-box">
+          <div class="kpi-mini-label">LATENSI</div>
+          <div class="kpi-mini-val" id="pKpiLatency">0.00 ms</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Kepatuhan Standar QC Industri -->
+    <div class="card-box" style="padding: 12px 14px;">
+      <div class="disclaimer-box">
+        <strong>Protokol Industri Plastik:</strong> Deteksi cacat injection molding memanfaatkan arsitektur Feature Pyramid Network (FPN) satu kelas dengan dekoder regresi koordinat pusat dan Non-Maximum Suppression (IoU 0.45). Setiap kotak merah mengindikasikan deviasi permukaan fisik produk.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- KOLOM UTAMA KANAN: Dual Viewport & Tabel Koordinat Cacat -->
+  <main class="metrology-main-col">
+
+    <!-- Card Header: Judul & Pemilih Tampilan -->
+    <div class="card-box metrology-header-card">
+      <div class="section-title-row" style="margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h2 class="view-title-main">Inspeksi Cacat Produk Injeksi Plastik</h2>
+          <span id="pLatencyBadge" class="latency-pill-badge">0.00 ms</span>
+        </div>
+      </div>
+
+      <!-- Pemilih Tampilan Filter -->
+      <div class="filter-options-row">
+        <span class="filter-label-text">Pilih Tampilan:</span>
+        <button type="button" class="filter-btn-pill active" id="btnPlasticDefect" onclick="selectPlasticFilter('annotated')">Deteksi Cacat (Bounding Box)</button>
+        <button type="button" class="filter-btn-pill" id="btnPlasticOrig" onclick="selectPlasticFilter('original')">Citra Asli Alami</button>
+      </div>
+    </div>
+
+    <!-- Dual Viewport Grid: Citra Asli vs Output Analisis -->
+    <div class="dual-viewport-grid">
+      <!-- Frame 1: Citra Asli Alami -->
+      <div class="display-viewport-card">
+        <div class="viewport-card-bar">
+          <span class="viewport-card-title">Citra Asli Produk Plastik</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-frame-zoom" onclick="zoomImg('pImg1', 'Citra Asli Produk Plastik')">Perbesar Asli</button>
+            <span class="frame-badge-tag badge-input">INPUT FEED</span>
+          </div>
+        </div>
+        <div class="viewport-image-box" onclick="zoomImg('pImg1', 'Citra Asli Produk Plastik')">
+          <img id="pImg1" style="display:none;" alt="Sumber Citra Plastik">
+          <div id="pPh1" class="viewport-empty-text">Menunggu citra produk plastik...</div>
+        </div>
+      </div>
+
+      <!-- Frame 2: Output Analisis Deteksi Cacat -->
+      <div class="display-viewport-card glow-pass" id="pCardOutput">
+        <div class="viewport-card-bar">
+          <span class="viewport-card-title" id="pOutputTitle">Deteksi Cacat (Bounding Box pada Citra Asli)</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-frame-zoom" onclick="zoomImg('pImg2', document.getElementById('pOutputTitle').innerText)">Perbesar HD</button>
+            <span class="frame-badge-tag badge-output" id="pOutputTag">OUTPUT QC</span>
+          </div>
+        </div>
+        <div class="viewport-image-box" onclick="zoomImg('pImg2', document.getElementById('pOutputTitle').innerText)">
+          <img id="pImg2" style="display:none;" alt="Output Analisis Plastik">
+          <div id="pPh2" class="viewport-empty-text">Hasil analisis akan muncul di sini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Rincian Tabel Koordinat Deteksi Cacat -->
+    <div class="card-box" id="pDefectTableCard" style="display: none; margin-top: 14px; padding: 14px 16px;">
+      <div class="section-title-row" style="margin-bottom: 10px;">
+        <span class="section-main-title">Daftar Koordinat &amp; Tingkat Keyakinan Area Cacat</span>
+        <span class="section-meta-tag" id="pDefectCountTag">0 Cacat Terdeteksi</span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="plastic-defect-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">ID</th>
+              <th>Klasifikasi</th>
+              <th>Tingkat Keyakinan</th>
+              <th>Koordinat Bounding Box (x1, y1, x2, y2)</th>
+            </tr>
+          </thead>
+          <tbody id="pDefectTableBody">
+            <!-- Diisi secara dinamis oleh JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Deskripsi Teknis Metode -->
+    <div class="technical-description-box" style="margin-top: 14px;">
+      <div class="desc-top-row">
+        <span class="desc-bold-title" id="pDescTitle">Deteksi Cacat Multi-Skala Feature Pyramid Network (FPN)</span>
+        <span class="desc-tag-pill" id="pDescTag">PyTorch CNN Single-Class</span>
+      </div>
+      <div class="desc-italic-sub" id="pDescSub">Fine, Middle &amp; Deep Convolutional Concat • Center-Based Decoding &amp; NMS</div>
+      <div class="desc-paragraph-text" id="pDescText">
+        Arsitektur CNN memanfaatkan tiga tingkatan kedalaman konvolusi yang digabungkan secara multi-skala. Setiap titik pada grid memprediksi probabilitas pusat cacat dan offset dimensi kotak pembatas (bounding box), disaring menggunakan Non-Maximum Suppression (NMS) dengan ambang keyakinan tervalidasi.
+      </div>
+    </div>
+
+  </main>
 </section>

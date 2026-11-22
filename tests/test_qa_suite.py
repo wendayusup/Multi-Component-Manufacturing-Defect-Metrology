@@ -59,7 +59,7 @@ class TestUnifiedInspectionQA(unittest.TestCase):
         self.assertIn("modules", data)
         self.assertEqual(data["modules"]["ring"]["status"], "ready")
         self.assertEqual(data["modules"]["bearing"]["status"], "ready")
-        self.assertEqual(data["modules"]["plastic"]["status"], "unavailable")
+        self.assertEqual(data["modules"]["plastic"]["status"], "ready")
 
     def test_02_module_discovery(self):
         """Verifies /api/v1/modules lists metadata for all 3 modules."""
@@ -91,9 +91,14 @@ class TestUnifiedInspectionQA(unittest.TestCase):
         self.assertGreater(len(self.bearing_defect_bytes), 1000)
         self.assertGreater(len(self.bearing_normal_bytes), 1000)
 
-        # Plastic sample should return 404 gracefully
+        # Plastic sample feeds should return 200 valid JPEG
         res_p = self.client.get("/api/sample/plastic/defect")
-        self.assertEqual(res_p.status_code, 404)
+        self.assertEqual(res_p.status_code, 200)
+        self.assertEqual(res_p.content_type, "image/jpeg")
+
+        # Unknown sample should return 404 gracefully
+        res_unk = self.client.get("/api/sample/plastic/unknown_type")
+        self.assertEqual(res_unk.status_code, 404)
 
     # -------------------------------------------------------------------------
     # 3. Bearing Ring Inspection Tests (Deep 7-Stage CNN)
@@ -160,12 +165,12 @@ class TestUnifiedInspectionQA(unittest.TestCase):
             self.assertIn("decision", data)
 
     # -------------------------------------------------------------------------
-    # 5. Plastic Inspection Standby Architecture Tests
+    # 5. Plastic Inspection Integration Tests
     # -------------------------------------------------------------------------
-    def test_09_plastic_inspection_standby_safety(self):
+    def test_09_plastic_inspection_live(self):
         """
-        Verifies that calling the plastic inspection endpoint does NOT crash with 500,
-        and returns a clean, informative standby response for the team.
+        Verifies that calling the plastic inspection endpoint executes successfully
+        using the integrated Single-Class FPN PyTorch CNN model.
         """
         res = self.client.post(
             "/api/v1/inspect/plastic",
@@ -175,15 +180,17 @@ class TestUnifiedInspectionQA(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertEqual(data["module_id"], "plastic")
-        self.assertEqual(data["status"], "model_unavailable")
-        self.assertEqual(data["decision"], "STANDBY")
-        self.assertIn("menunggu", data["message"].lower())
+        self.assertEqual(data["status"], "success")
+        self.assertIn(data["decision"], ["PASS (OK)", "REJECT (DEFECT)"])
+        self.assertIn("defect_boxes", data)
+        self.assertIn("original_image", data)
+        self.assertIn("annotated_image", data)
 
     # -------------------------------------------------------------------------
     # 6. Run All (Cross-Module Inspection) Tests
     # -------------------------------------------------------------------------
     def test_10_inspect_all_modules(self):
-        """Verifies /api/v1/inspect/all executes sequentially and handles partial standby."""
+        """Verifies /api/v1/inspect/all executes sequentially across all 3 modules."""
         res = self.client.post(
             "/api/v1/inspect/all",
             data={"file": (io.BytesIO(self.ring_defect_bytes), "input.jpg")},
@@ -191,11 +198,13 @@ class TestUnifiedInspectionQA(unittest.TestCase):
         )
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
-        self.assertEqual(data["status"], "partial_success")
+        self.assertEqual(data["status"], "completed")
         self.assertIn("bearing", data["results"])
         self.assertIn("ring", data["results"])
         self.assertIn("plastic", data["results"])
-        self.assertEqual(data["results"]["plastic"]["status"], "model_unavailable")
+        self.assertEqual(data["results"]["bearing"]["status"], "success")
+        self.assertEqual(data["results"]["ring"]["status"], "success")
+        self.assertEqual(data["results"]["plastic"]["status"], "success")
 
     # -------------------------------------------------------------------------
     # 7. Error Handling & Validation Tests
@@ -247,9 +256,19 @@ class TestUnifiedInspectionQA(unittest.TestCase):
         self.assertEqual(res_th.content_type, "image/png")
 
     # -------------------------------------------------------------------------
-    # 9. UI DOM Integrity & Template Element Mapping Tests
+    # 9. Plastic Sample Presets Endpoints
     # -------------------------------------------------------------------------
-    def test_15_ui_dom_integrity(self):
+    def test_15_plastic_sample_endpoints(self):
+        """Verifies /api/sample/plastic/defect and /normal return valid images."""
+        for s_type in ["defect", "normal"]:
+            res = self.client.get(f"/api/sample/plastic/{s_type}")
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(res.content_type, "image/jpeg")
+
+    # -------------------------------------------------------------------------
+    # 10. UI DOM Integrity & Template Element Mapping Tests
+    # -------------------------------------------------------------------------
+    def test_16_ui_dom_integrity(self):
         """
         Verifies that the rendered HTML contains all required DOM containers and
         interactive element IDs used by app.js, ring.js, and bearing.js.
@@ -274,7 +293,14 @@ class TestUnifiedInspectionQA(unittest.TestCase):
             "sensStd", "sensHigh", "sensUltra",
             "cLatencyBadge", "cImg1", "cPh1", "cImg2", "cPh2",
             "cCardOutput", "cOutputTag", "cDecisionBanner", "cDecisionTxt",
-            "cConfTxt", "cBarDefect", "cBarOk", "castBlurVal", "castBrightVal", "castUncertVal"
+            "cConfTxt", "cBarDefect", "cBarOk", "castBlurVal", "castBrightVal", "castUncertVal",
+            # Plastic Module (Secondary Module: dropzone, presets & defect table)
+            "plasticUploadArea", "plasticFileInput",
+            "pGateBadge", "pDecisionBanner", "pDecisionTxt", "pConfTxt",
+            "pBarDefect", "pBarNormal", "pKpiDefects", "pKpiThreshold", "pKpiDim", "pKpiLatency",
+            "pLatencyBadge", "btnPlasticDefect", "btnPlasticOrig",
+            "pImg1", "pPh1", "pImg2", "pPh2", "pCardOutput", "pOutputTag",
+            "pDefectTableCard", "pDefectTableBody"
         ]
 
         missing_ids = [elem_id for elem_id in required_ids if f'id="{elem_id}"' not in html]

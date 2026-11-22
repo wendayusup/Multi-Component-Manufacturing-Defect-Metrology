@@ -80,6 +80,8 @@ function submitModuleInference(modId, payload, isJson) {
           renderRingResults(data);
         } else if (modId === 'bearing' && typeof renderCastResults === 'function') {
           renderCastResults(data);
+        } else if (modId === 'plastic' && typeof renderPlasticResults === 'function') {
+          renderPlasticResults(data);
         }
       } else {
         alert(`Peringatan Inspeksi: ${data.error_message || data.message || 'Gagal memproses inspeksi citra'}`);

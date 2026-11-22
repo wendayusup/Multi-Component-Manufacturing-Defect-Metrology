@@ -53,7 +53,7 @@ MODULES = {
         "id": "plastic",
         "name": "Plastic Defect Inspection",
         "category": "Plastic Injection",
-        "badge": "Standby Integration",
-        "description": "Modul deteksi cacat pada produk cetakan plastik. Sedang dalam tahap integrasi dari rekan tim."
+        "badge": "Single-Class CNN (FPN)",
+        "description": "Inspeksi cacat produk cetakan plastik injection molding berbasis Feature Pyramid Single-Class CNN dengan dekoder NMS."
     }
 }

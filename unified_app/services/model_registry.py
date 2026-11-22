@@ -27,9 +27,12 @@ class ModelRegistry:
         except Exception as e:
             print(f"[WARN] Model Registry: Bearing/Casting Adapter failed: {e}")
 
-        # Plastic Adapter (Standby)
-        self._adapters["plastic"] = PlasticAdapter()
-        print("[INFO] Model Registry: Plastic Adapter initialized in Standby mode.")
+        # Plastic Adapter
+        try:
+            self._adapters["plastic"] = PlasticAdapter()
+            print("[INFO] Model Registry: Plastic Adapter initialized.")
+        except Exception as e:
+            print(f"[WARN] Model Registry: Plastic Adapter failed: {e}")
 
     def get_adapter(self, module_id: str) -> Optional[BaseInspectionAdapter]:
         return self._adapters.get(module_id)
