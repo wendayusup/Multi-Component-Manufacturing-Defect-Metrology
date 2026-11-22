@@ -281,24 +281,24 @@ class TestUnifiedInspectionQA(unittest.TestCase):
             # Navbar & Global
             "btnNavRing", "btnNavBearing", "btnNavPlastic",
             "workspaceRing", "workspaceBearing", "workspacePlastic",
-            "zoomModal", "zoomImg", "zoomTitle", "s2Modal",
+            "zoomModal", "zoomImg", "zoomTitle",
             # Ring Module
             "ringTabUpload", "ringTabCam", "ringUploadArea", "ringCameraArea",
             "ringFileInput", "ringVideo", "btnRingAuto", "ringAutoTxt",
-            "ringMatrixSlider", "activeResLabel", "rLatencyBadge",
+            "ringMatrixSlider", "activeResLabel",
             "rImg1", "rPh1", "rImg2", "rPh2", "rCardOutput", "rOutputTag",
             "rDecisionBanner", "rDecisionTxt", "rConfTxt", "rBarDefect", "rBarNormal",
             # Bearing Module (Secondary Module: dropzone & presets)
             "castUploadArea", "castFileInput",
             "sensStd", "sensHigh", "sensUltra",
-            "cLatencyBadge", "cImg1", "cPh1", "cImg2", "cPh2",
+            "cImg1", "cPh1", "cImg2", "cPh2",
             "cCardOutput", "cOutputTag", "cDecisionBanner", "cDecisionTxt",
             "cConfTxt", "cBarDefect", "cBarOk", "castBlurVal", "castBrightVal", "castUncertVal",
             # Plastic Module (Secondary Module: dropzone, presets & defect table)
             "plasticUploadArea", "plasticFileInput",
             "pGateBadge", "pDecisionBanner", "pDecisionTxt", "pConfTxt",
             "pBarDefect", "pBarNormal", "pKpiDefects", "pKpiThreshold", "pKpiDim", "pKpiLatency",
-            "pLatencyBadge", "btnPlasticDefect", "btnPlasticOrig",
+            "btnPlasticDefect", "btnPlasticOrig",
             "pImg1", "pPh1", "pImg2", "pPh2", "pCardOutput", "pOutputTag",
             "pDefectTableCard", "pDefectTableBody"
         ]

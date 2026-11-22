@@ -44,20 +44,6 @@ function switchNavbarModule(modId) {
   if (wsRing) wsRing.classList.toggle('active', modId === 'ring');
   if (wsBearing) wsBearing.classList.toggle('active', modId === 'bearing');
   if (wsPlastic) wsPlastic.classList.toggle('active', modId === 'plastic');
-
-  // 4. Tombol Tolok Ukur Model (visibility toggled to keep navbar fixed in place)
-  const btnBench = document.getElementById('btnBenchmarksNav');
-  if (btnBench) {
-    if (modId === 'ring') {
-      btnBench.style.visibility = 'visible';
-      btnBench.style.opacity = '1';
-      btnBench.style.pointerEvents = 'auto';
-    } else {
-      btnBench.style.visibility = 'hidden';
-      btnBench.style.opacity = '0';
-      btnBench.style.pointerEvents = 'none';
-    }
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -217,32 +203,9 @@ function closeZoomDirect() {
   closeZoomModal();
 }
 
-// -----------------------------------------------------------------------------
-// Academic Evaluation Modal (S2 Benchmark)
-// -----------------------------------------------------------------------------
-function openS2Modal() {
-  const modal = document.getElementById('s2Modal');
-  if (modal) modal.classList.add('open');
-}
-
-function closeS2Modal(e) {
-  if (e && e.target && e.target.id === 's2Modal') {
-    closeS2ModalDirect();
-  }
-}
-
-function closeS2ModalDirect() {
-  const modal = document.getElementById('s2Modal');
-  if (modal) modal.classList.remove('open');
-}
-
-function openEvaluationModal() { openS2Modal(); }
-function closeEvaluationModal() { closeS2ModalDirect(); }
-
 // Close modals on Escape key
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeZoomModal();
-    closeS2ModalDirect();
   }
 });

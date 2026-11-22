@@ -50,17 +50,8 @@
       </button>
     </nav>
 
-    <!-- RIGHT ACTIONS: Academic Evaluation & Benchmarks Modal Trigger -->
-    <div class="nav-right-actions">
-      <button type="button" class="btn-benchmarks" id="btnBenchmarksNav" onclick="openS2Modal()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="20" x2="18" y2="10"></line>
-          <line x1="12" y1="20" x2="12" y2="4"></line>
-          <line x1="6" y1="20" x2="6" y2="14"></line>
-        </svg>
-        <span>Tolok Ukur Model (S2)</span>
-      </button>
-    </div>
+    <!-- RIGHT ACTIONS: Keeps 50% navbar centering balanced -->
+    <div class="nav-right-actions"></div>
   </header>
 
   <!-- ========================================================================= -->
@@ -87,40 +78,6 @@
       <button type="button" onclick="closeZoomDirect()" style="background: none; border: none; color: #E2E8F0; font-size: 1.5rem; cursor: pointer;">✕</button>
     </div>
     <img id="zoomImg" class="zoom-lightbox-img" src="" alt="Zoom Frame" onclick="event.stopPropagation()">
-  </div>
-
-  <!-- S2 Academic Evaluation & Benchmark Figures Modal -->
-  <div id="s2Modal" class="s2-dialog-modal" onclick="closeS2Modal(event)">
-    <div class="s2-dialog-box" onclick="event.stopPropagation()">
-      <div style="padding: 16px 22px; background: #FFFFFF; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border);">
-        <div>
-          <div style="font-size: 1.10rem; font-weight: 700; color: var(--color-text-primary);">Evaluasi Riset Akademik &amp; Tolok Ukur Model</div>
-          <div style="font-size: 0.80rem; color: var(--color-text-muted);">Validasi Ilmiah Independen &bull; Analisis Kinerja Metrologi AI</div>
-        </div>
-        <button type="button" onclick="closeS2ModalDirect()" style="background: none; border: none; color: var(--color-text-muted); font-size: 1.5rem; cursor: pointer;">✕</button>
-      </div>
-      <div style="padding: 22px; overflow-y: auto; font-size: 0.86rem; background: #F8FAFC;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div style="background: #FFFFFF; padding: 14px; border-radius: 12px; border: 1px solid var(--color-border); text-align: center; box-shadow: var(--shadow-subtle);">
-            <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px;">Confusion Matrix: Ring (Data Uji)</div>
-            <img src="/api/analytics/ring/confusion_matrix" alt="Confusion Matrix" style="width: 100%; max-height: 230px; object-fit: contain;">
-          </div>
-          <div style="background: #FFFFFF; padding: 14px; border-radius: 12px; border: 1px solid var(--color-border); text-align: center; box-shadow: var(--shadow-subtle);">
-            <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px;">Riwayat Pelatihan: Pure CNN 512x512</div>
-            <img src="/api/analytics/ring/training_history" alt="Kurva Pelatihan" style="width: 100%; max-height: 230px; object-fit: contain;">
-          </div>
-        </div>
-        <div style="margin-top: 16px; background: #FFFFFF; padding: 16px; border-radius: 12px; border: 1px solid var(--color-border); box-shadow: var(--shadow-subtle);">
-          <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 10px; font-size: 0.92rem;">Spesifikasi Kinerja Metrologi:</div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
-            <tr style="border-bottom: 1px solid #E2E8F0;"><td style="padding: 7px; color: var(--color-text-muted);">Akurasi Pengujian (Test Accuracy)</td><td style="padding: 7px; font-weight: 700; color: #059669;">95.83%</td></tr>
-            <tr style="border-bottom: 1px solid #E2E8F0;"><td style="padding: 7px; color: var(--color-text-muted);">Presisi Cacat (Defect Precision)</td><td style="padding: 7px; font-weight: 700; color: #059669;">100.0% (Nol Salah Tolak / Zero False Reject)</td></tr>
-            <tr style="border-bottom: 1px solid #E2E8F0;"><td style="padding: 7px; color: var(--color-text-muted);">Recall Cacat (Defect Recall)</td><td style="padding: 7px; font-weight: 700; color: #059669;">91.67%</td></tr>
-            <tr><td style="padding: 7px; color: var(--color-text-muted);">Resolusi Matriks Metrologi</td><td style="padding: 7px; font-weight: 700; color: #2563EB;">512x512 Sel Disparitas (262.144 Nilai Terukur)</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- ========================================================================= -->
