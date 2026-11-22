@@ -221,27 +221,18 @@ html, body {
   display: grid;
 }
 
-/* Ring and Bearing share the same two-column layout */
+/* All three inspection workspaces share the identical two-column layout */
 #workspaceRing,
-#workspaceBearing {
-  grid-template-columns: 380px 1fr;
-}
-
-/* Plastic is a centered standby card */
+#workspaceBearing,
 #workspacePlastic {
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-#workspacePlastic.active {
-  display: flex;
+  grid-template-columns: 380px 1fr;
 }
 
 /* Responsive: stack columns on small screens */
 @media (max-width: 1080px) {
   #workspaceRing,
-  #workspaceBearing {
+  #workspaceBearing,
+  #workspacePlastic {
     grid-template-columns: 1fr;
     height: auto;
     min-height: 100vh;
