@@ -574,8 +574,10 @@ html, body {
   justify-content: center;
   overflow: hidden;
   cursor: zoom-in;
-  background: var(--color-canvas);
-  min-height: 0;
+  background: #E2E8F0; /* Abu-abu netral industri sebagai gambaran frame kosong/menunggu diisi */
+  min-height: 340px;
+  position: relative;
+  transition: background .2s;
 }
 
 .viewport-image-box img {
@@ -585,10 +587,36 @@ html, body {
 }
 
 .viewport-empty-text {
-  font-size: 0.80rem;
-  color: var(--color-text-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748B;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 24px 32px;
+  border: 2px dashed #94A3B8;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.85);
   text-align: center;
-  padding: 16px;
+  max-width: 320px;
+  box-sizing: border-box;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.viewport-empty-icon {
+  width: 38px;
+  height: 38px;
+  stroke: #94A3B8;
+  margin-bottom: 2px;
+}
+
+.viewport-empty-sub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94A3B8;
 }
 
 /* -------------------------------------------------------------------------

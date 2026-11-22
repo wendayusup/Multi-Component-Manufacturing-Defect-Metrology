@@ -223,7 +223,15 @@
         </div>
         <div class="viewport-image-box" onclick="zoomImg('rImg1', 'Citra Asli Bearing Ring')">
           <img id="rImg1" style="display:none;" alt="Sumber Citra Ring">
-          <div id="rPh1" class="viewport-empty-text">Menunggu citra bearing ring...</div>
+          <div id="rPh1" class="viewport-empty-text">
+            <svg class="viewport-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>Menunggu citra bearing ring...</span>
+            <span class="viewport-empty-sub">Frame belum terisi citra input</span>
+          </div>
         </div>
       </div>
 
@@ -239,7 +247,15 @@
         </div>
         <div class="viewport-image-box" onclick="zoomImg('rImg2', document.getElementById('rOutputTitle').innerText)">
           <img id="rImg2" style="display:none;" alt="Output Metrologi Ring">
-          <div id="rPh2" class="viewport-empty-text">Hasil analisis akan muncul di sini</div>
+          <div id="rPh2" class="viewport-empty-text">
+            <svg class="viewport-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>Hasil analisis akan muncul di sini</span>
+            <span class="viewport-empty-sub">Frame belum terisi output QC</span>
+          </div>
         </div>
       </div>
     </div>
