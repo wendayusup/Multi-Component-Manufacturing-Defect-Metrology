@@ -284,6 +284,10 @@ def get_sample_image(sample_type, module_id="ring"):
     elif module_id == "plastic":
         subfolder = "defect" if is_defect_sample else "normal"
         possible_folders = [
+            PLASTIC_DIR / "dataset" / "test" / subfolder,
+            PLASTIC_DIR / "dataset" / "train" / subfolder,
+            WORKSPACE_ROOT / "test",
+            WORKSPACE_ROOT / "train",
             PLASTIC_DIR / "samples" / subfolder,
             WORKSPACE_ROOT / "PlasticDefectionWeb" / "samples" / subfolder,
             Path.cwd() / "model_development" / "plastic_inspection" / "samples" / subfolder,
@@ -291,7 +295,11 @@ def get_sample_image(sample_type, module_id="ring"):
         ]
         for folder in possible_folders:
             if folder.exists():
-                files = list(folder.glob("*.jpg")) + list(folder.glob("*.jpeg")) + list(folder.glob("*.png"))
+                if folder.name in ["test", "train"]:
+                    prefix = "NOK" if is_defect_sample else "OK"
+                    files = list(folder.glob(f"{prefix}*.jpg"))
+                else:
+                    files = list(folder.glob("*.jpg")) + list(folder.glob("*.jpeg")) + list(folder.glob("*.png"))
                 if files:
                     selected = random.choice(files)
                     resp = send_file(str(selected), mimetype="image/jpeg")

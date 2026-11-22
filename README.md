@@ -51,7 +51,7 @@ Unified_Inspection/
 │       ├── models/detector.py                # FPN Single-Class CNN architecture
 │       ├── models/plastic_defect_detector.pt # Trained PyTorch checkpoint (877 KB)
 │       ├── models/environment.json           # Model metadata and input parameters
-│       └── samples/                          # Defect and normal sample datasets
+│       └── dataset/                          # Train & test datasets (defect & normal splits)
 │
 └── unified_app/                               # UNIFIED WEB PLATFORM & INFERENCE ENGINE
     ├── __init__.py                           # Flask application factory (`create_app`)
