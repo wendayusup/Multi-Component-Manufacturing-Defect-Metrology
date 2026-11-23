@@ -251,8 +251,9 @@ function renderRingResults(data) {
   ringLatestResult = data;
   const isDefect = data.is_defect;
 
-  // Indikator latensi
-  document.getElementById('rLatencyBadge').innerText = `${data.processing_ms} ms`;
+  // Indikator latensi (aman jika elemen badge tidak ada di DOM)
+  const rLatBadge = document.getElementById('rLatencyBadge');
+  if (rLatBadge) rLatBadge.innerText = `${data.processing_ms} ms`;
   const kpiLat = document.getElementById('rKpiLatency');
   if (kpiLat) kpiLat.innerText = `${data.processing_ms} ms`;
 

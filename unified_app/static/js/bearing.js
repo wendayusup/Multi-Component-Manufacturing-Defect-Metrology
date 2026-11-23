@@ -117,7 +117,11 @@ function renderCastResults(data) {
   const isDefect = data.is_defect;
   const isReview = data.predicted_label === 'Perlu Review' || data.predicted_label === 'Review Required';
 
-  document.getElementById('cLatencyBadge').innerText = `${data.processing_ms} ms`;
+  // Indikator latensi (aman jika elemen badge tidak ada di DOM)
+  const cLatBadge = document.getElementById('cLatencyBadge');
+  if (cLatBadge) cLatBadge.innerText = `${data.processing_ms} ms`;
+  const cKpiLat = document.getElementById('cKpiLatency');
+  if (cKpiLat) cKpiLat.innerText = `${data.processing_ms} ms`;
   setImg('cImg1', 'cPh1', data.original_image);
   updateCastFrameViews(data);
 
