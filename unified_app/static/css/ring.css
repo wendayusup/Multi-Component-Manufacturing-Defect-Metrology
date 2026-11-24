@@ -231,3 +231,29 @@ input[type="range"].matrix-range::-moz-range-thumb {
   background: var(--color-surface);
   color: var(--color-text-secondary);
 }
+
+/* -------------------------------------------------------------------------
+ * Macro Zoom Controls
+ * -------------------------------------------------------------------------*/
+.btn-zoom {
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.btn-zoom:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+.btn-zoom.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #FFFFFF;
+}

@@ -117,8 +117,8 @@ def locate_defects(
     model: Sequential,
     image: Image.Image,
     threshold_ratio: float = 0.58,
-    min_area: int = 40,
-    max_components: int = 4
+    min_area: int = 60,
+    max_components: int = 3
 ) -> Dict:
     """
     Performs Grad-CAM feature localization on the last convolutional layer.
@@ -197,7 +197,7 @@ def locate_defects(
         }
         boxes.append(box)
 
-        # Hotspot center point
+        # Titik fokus pusat anomali (1 titik utama per kotak cacat)
         points.append({
             "box_id": idx,
             "x": int(peak_x),
@@ -205,16 +205,6 @@ def locate_defects(
             "type": "peak",
             "label": f"Pusat Defect #{idx}"
         })
-
-        # Sample perimeter dots along the edge of the defect area
-        step = max(1, len(comp) // 6)
-        for k in range(0, len(comp), step):
-            points.append({
-                "box_id": idx,
-                "x": int(comp[k][1]),
-                "y": int(comp[k][0]),
-                "type": "perimeter"
-            })
 
     return {
         "has_defect": len(boxes) > 0,
@@ -259,17 +249,13 @@ def generate_annotated_image_base64(image: Image.Image, localization: Dict) -> O
         draw.rectangle([x0, tag_y0, x0 + tag_w, tag_y0 + tag_h], fill=(239, 68, 68))
         draw.text((x0 + 4, tag_y0 + 2), label_text, fill=(255, 255, 255))
 
-    # 2. Draw Marker Dots
+    # 2. Draw Marker Dots (Hanya titik pusat fokus utama)
     for pt in points:
         px, py = pt["x"], pt["y"]
         if pt.get("type") == "peak":
-            # Primary peak dot: yellow center with red rim
-            r = 5
+            # Primary peak dot: kuning dengan rim merah tipis
+            r = 4
             draw.ellipse([px - r, py - r, px + r, py + r], fill=(245, 158, 11), outline=(220, 38, 38), width=2)
-        else:
-            # Perimeter dots: small red markers
-            r = 2
-            draw.ellipse([px - r, py - r, px + r, py + r], fill=(239, 68, 68))
 
     # Export to base64 JPEG
     buffer = io.BytesIO()

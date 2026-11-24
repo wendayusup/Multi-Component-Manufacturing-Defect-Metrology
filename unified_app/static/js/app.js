@@ -79,22 +79,63 @@ function submitModuleInference(modId, payload, isJson) {
 }
 
 // -----------------------------------------------------------------------------
-// Utilitas Manajemen Hardware Kamera
+// Utilitas Manajemen Hardware Kamera & Macro Zoom
 // -----------------------------------------------------------------------------
-function startCamera(videoElementId) {
+let selectedCameraDeviceId = null;
+let currentCameraZoom = 1.0;
+
+function setCameraZoom(val) {
+  currentCameraZoom = parseFloat(val) || 1.0;
+  ['zoom1', 'zoom15', 'zoom2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const zVal = parseFloat(el.getAttribute('data-zoom') || '1.0');
+      el.classList.toggle('active', Math.abs(zVal - currentCameraZoom) < 0.05);
+    }
+  });
+}
+
+function startCamera(videoElementId, preferredDeviceId) {
   stopCamera();
+  const targetDeviceId = preferredDeviceId || selectedCameraDeviceId;
+
+  const constraints = {
+    video: targetDeviceId 
+      ? { deviceId: { exact: targetDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      : { width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: false
+  };
+
+  const bindStream = (stream) => {
+    activeVideoStream = stream;
+    const vid = document.getElementById(videoElementId);
+    if (vid) {
+      vid.srcObject = stream;
+      vid.play().catch(() => {});
+    }
+    const track = stream.getVideoTracks()[0];
+    if (track) {
+      const s = track.getSettings();
+      if (s.deviceId) selectedCameraDeviceId = s.deviceId;
+    }
+    populateCameraList();
+  };
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Akses kamera membutuhkan HTTPS atau koneksi localhost.");
+    return;
+  }
+
   navigator.mediaDevices
-    .getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false
-    })
-    .then(stream => {
-      activeVideoStream = stream;
-      const vid = document.getElementById(videoElementId);
-      if (vid) vid.srcObject = stream;
-      populateCameraList();
-    })
-    .catch(err => alert("Aliran kamera tidak dapat diakses: " + err));
+    .getUserMedia(constraints)
+    .then(bindStream)
+    .catch(err => {
+      // Fallback jika constraint resolusi tinggi atau deviceId exact ditolak perangkat
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: false })
+        .then(bindStream)
+        .catch(err2 => alert("Aliran kamera tidak dapat diakses: " + err2.message));
+    });
 }
 
 function stopCamera() {
@@ -104,53 +145,96 @@ function stopCamera() {
   }
 }
 
-function switchCameraFeed(mod) {
-  startCamera(mod === 'ring' ? 'ringVideo' : 'castVideo');
-}
-
 function populateCameraList() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
   navigator.mediaDevices.enumerateDevices().then(devices => {
     const videoDevices = devices.filter(d => d.kind === 'videoinput');
-    const select = document.getElementById('cameraSelect');
-    if (!select) return;
-    select.innerHTML = '';
-    videoDevices.forEach((dev, idx) => {
-      const opt = document.createElement('option');
-      opt.value = dev.deviceId;
-      opt.text = dev.label || `Kamera ${idx + 1}`;
-      select.appendChild(opt);
+    const selects = [
+      document.getElementById('ringCamSelect'),
+      document.getElementById('cameraSelect')
+    ].filter(Boolean);
+
+    if (selects.length === 0) return;
+
+    selects.forEach(sel => {
+      const prevVal = sel.value || selectedCameraDeviceId;
+      sel.innerHTML = '';
+      if (videoDevices.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.text = 'Tidak ada kamera terdeteksi';
+        sel.appendChild(opt);
+        return;
+      }
+      videoDevices.forEach((dev, idx) => {
+        const opt = document.createElement('option');
+        opt.value = dev.deviceId;
+        opt.text = dev.label || `Kamera ${idx + 1} (${dev.deviceId ? dev.deviceId.substring(0, 8) + '...' : 'USB/Webcam'})`;
+        if (dev.deviceId && (dev.deviceId === prevVal || dev.deviceId === selectedCameraDeviceId)) {
+          opt.selected = true;
+        }
+        sel.appendChild(opt);
+      });
+      if (!selectedCameraDeviceId && sel.value) {
+        selectedCameraDeviceId = sel.value;
+      }
     });
+  }).catch(() => {});
+}
+
+// Deteksi otomatis saat kamera baru dicolokkan / dicabut
+if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+  navigator.mediaDevices.addEventListener('devicechange', () => {
+    populateCameraList();
   });
 }
 
+function onCameraDeviceChanged(mod, deviceId) {
+  if (!deviceId) return;
+  selectedCameraDeviceId = deviceId;
+  const vidId = mod === 'ring' ? 'ringVideo' : 'castVideo';
+  startCamera(vidId, deviceId);
+}
+
 function onCameraSelectChange(deviceId) {
-  stopCamera();
-  navigator.mediaDevices
-    .getUserMedia({
-      video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false
-    })
-    .then(stream => {
-      activeVideoStream = stream;
-      const targetId = activeModule === 'ring' ? 'ringVideo' : 'castVideo';
-      const vid = document.getElementById(targetId);
-      if (vid) vid.srcObject = stream;
-    })
-    .catch(err => alert("Gagal beralih ke kamera yang dipilih: " + err));
+  onCameraDeviceChanged('ring', deviceId);
+}
+
+function switchCameraFeed(mod) {
+  const sel = document.getElementById(mod === 'ring' ? 'ringCamSelect' : 'cameraSelect');
+  if (sel && sel.options.length > 1) {
+    const nextIdx = (sel.selectedIndex + 1) % sel.options.length;
+    sel.selectedIndex = nextIdx;
+    onCameraDeviceChanged(mod, sel.value);
+  } else {
+    startCamera(mod === 'ring' ? 'ringVideo' : 'castVideo');
+  }
 }
 
 function captureCanvasFrame(videoElementId) {
   const vid = document.getElementById(videoElementId);
   if (!vid || !vid.videoWidth) return null;
+
+  const vw = vid.videoWidth;
+  const vh = vid.videoHeight;
+  const zoom = currentCameraZoom || 1.0;
+
+  // Pemotongan fokus di tengah dengan dukungan macro zoom
+  const baseCrop = Math.min(vw, vh) * 0.85;
+  const cropSize = Math.floor(baseCrop / zoom);
+  const sx = Math.max(0, Math.floor((vw - cropSize) / 2));
+  const sy = Math.max(0, Math.floor((vh - cropSize) / 2));
+
   const canvas = document.createElement('canvas');
-  canvas.width = vid.videoWidth;
-  canvas.height = vid.videoHeight;
+  canvas.width = 512;
+  canvas.height = 512;
   const ctx = canvas.getContext('2d');
-  // Mirroring horizontal agar hasil tangkapan sesuai tampilan kamera cermin
+
+  // Efek cermin horizontal (mirroring) agar natural bagi operator
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
-  ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(vid, sx, sy, cropSize, cropSize, 0, 0, 512, 512);
+
   return canvas.toDataURL('image/jpeg', 0.92);
 }
 
