@@ -79,21 +79,9 @@ function submitModuleInference(modId, payload, isJson) {
 }
 
 // -----------------------------------------------------------------------------
-// Utilitas Manajemen Hardware Kamera & Macro Zoom
+// Utilitas Manajemen Hardware Kamera
 // -----------------------------------------------------------------------------
 let selectedCameraDeviceId = null;
-let currentCameraZoom = 1.0;
-
-function setCameraZoom(val) {
-  currentCameraZoom = parseFloat(val) || 1.0;
-  ['zoom1', 'zoom15', 'zoom2'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      const zVal = parseFloat(el.getAttribute('data-zoom') || '1.0');
-      el.classList.toggle('active', Math.abs(zVal - currentCameraZoom) < 0.05);
-    }
-  });
-}
 
 function startCamera(videoElementId, preferredDeviceId) {
   stopCamera();
@@ -217,11 +205,9 @@ function captureCanvasFrame(videoElementId) {
 
   const vw = vid.videoWidth;
   const vh = vid.videoHeight;
-  const zoom = currentCameraZoom || 1.0;
 
-  // Pemotongan fokus di tengah dengan dukungan macro zoom
-  const baseCrop = Math.min(vw, vh) * 0.85;
-  const cropSize = Math.floor(baseCrop / zoom);
+  // Pemotongan bujur sangkar di bagian tengah citra video
+  const cropSize = Math.min(vw, vh);
   const sx = Math.max(0, Math.floor((vw - cropSize) / 2));
   const sy = Math.max(0, Math.floor((vh - cropSize) / 2));
 
