@@ -242,7 +242,10 @@ def get_sample_image(sample_type, module_id="ring"):
 
     if module_id == "ring":
         subfolder = "defect_ring" if is_defect_sample else "normal_ring"
+        sample_sub = "defect" if is_defect_sample else "normal"
         possible_folders = [
+            Path.cwd() / "dataset" / "ring" / sample_sub,
+            WORKSPACE_ROOT / "dataset" / "ring" / sample_sub,
             RING_DIR / "dataset_split" / "test" / subfolder,
             RING_DIR / "dataset_split" / "val" / subfolder,
             RING_DIR / "dataset_split" / "train" / subfolder,
@@ -263,7 +266,10 @@ def get_sample_image(sample_type, module_id="ring"):
 
     elif module_id == "bearing":
         subfolder = "def_front" if is_defect_sample else "ok_front"
+        sample_sub = "defect" if is_defect_sample else "normal"
         possible_folders = [
+            Path.cwd() / "dataset" / "bearing" / sample_sub,
+            WORKSPACE_ROOT / "dataset" / "bearing" / sample_sub,
             CASTING_DIR / "casting_512x512" / "casting_512x512" / subfolder,
             CASTING_DIR / "casting_data" / "test" / subfolder,
             WORKSPACE_ROOT / "Casting_Detection" / "casting_512x512" / "casting_512x512" / subfolder,
@@ -284,10 +290,11 @@ def get_sample_image(sample_type, module_id="ring"):
     elif module_id == "plastic":
         subfolder = "defect" if is_defect_sample else "normal"
         possible_folders = [
+            Path.cwd() / "dataset" / "plastic" / subfolder,
+            WORKSPACE_ROOT / "dataset" / "plastic" / subfolder,
             PLASTIC_DIR / "dataset" / "test" / subfolder,
+            PLASTIC_DIR / "dataset" / "valid" / subfolder,
             PLASTIC_DIR / "dataset" / "train" / subfolder,
-            WORKSPACE_ROOT / "test",
-            WORKSPACE_ROOT / "train",
             PLASTIC_DIR / "samples" / subfolder,
             WORKSPACE_ROOT / "PlasticDefectionWeb" / "samples" / subfolder,
             Path.cwd() / "model_development" / "plastic_inspection" / "samples" / subfolder,
