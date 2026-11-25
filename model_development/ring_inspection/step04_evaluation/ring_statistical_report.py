@@ -1,5 +1,5 @@
 """
-STATISTICAL ANALYSIS, CORRELATION MATRIX & VISUAL DASHBOARD FOR BEARING RING
+STATISTICAL ANALYSIS, CORRELATION MATRIX & VISUAL DASHBOARD FOR RING
 ----------------------------------------------------------------------------
 Generates quantitative statistics and visual figures across the Test Dataset:
 1. Correlation Matrix Heatmap (CNN Prob, Sobel Gradient, Black-Hat p95,
@@ -151,7 +151,7 @@ def main():
     ax.set_xticklabels(feat_names, rotation=30, ha="right", fontsize=10)
     ax.set_yticklabels(feat_names, fontsize=10)
     ax.set_title(
-        f"Matriks Korelasi Fitur Inspeksi Bearing Ring (N={len(records)})",
+        f"Matriks Korelasi Fitur Inspeksi Ring (N={len(records)})",
         fontsize=12, fontweight="bold", pad=14
     )
 
@@ -171,7 +171,7 @@ def main():
     # -------------------------------------------------------------------------
     fig, axes = plt.subplots(2, 2, figsize=(13, 10))
     fig.suptitle(
-        f"Dashboard Statistik & Performa Modul Bearing Ring (N={len(records)} Test Images)",
+        f"Dashboard Statistik & Performa Modul Ring (N={len(records)} Test Images)",
         fontsize=14, fontweight="bold", y=0.98
     )
 

@@ -1,73 +1,73 @@
 filename,ground_truth,pred_label,cnn_defect_prob,sobel_gradient,blackhat_p95,matrix_mean,matrix_max,num_boxes,gate_info,latency_ms
-defect_21.jpg,1,1,99.95,25.72,0.3686,24.9,99,16,Gate 1 (Pure CNN),541.96
-defect_21_bright_down.jpg,1,1,99.87,19.29,0.3216,24.45,99,15,Gate 1 (Pure CNN),445.6
-defect_21_bright_up.jpg,1,1,99.98,15.87,0.2525,23.91,99,18,Gate 1 (Pure CNN),896.4
-defect_21_flipH.jpg,1,1,99.33,15.91,0.2627,23.99,99,14,Gate 1 (Pure CNN),835.48
-defect_21_flipV.jpg,1,1,99.46,15.43,0.2565,23.94,99,15,Gate 1 (Pure CNN),832.69
-defect_21_rot180.jpg,1,1,99.96,15.52,0.2573,23.95,99,15,Gate 1 (Pure CNN),836.48
-defect_21_rot270.jpg,1,1,99.88,15.34,0.2549,23.92,99,15,Gate 1 (Pure CNN),698.57
-defect_21_rot90.jpg,1,1,98.97,15.23,0.2525,23.91,99,15,Gate 1 (Pure CNN),696.4
-defect_21_rot90_flipH.jpg,1,1,99.98,15.21,0.2525,23.91,99,15,Gate 1 (Pure CNN),751.76
-defect_22.jpg,1,0,24.93,23.68,0.3529,22.39,87,0,Gate 1 + 2 (Clear),579.13
-defect_22_bright_down.jpg,1,0,21.48,18.81,0.3161,22.35,85,0,Gate 1 + 2 (Clear),559.11
-defect_22_bright_up.jpg,1,0,20.56,15.9,0.2627,22.39,99,0,Gate 1 + 2 (Clear),972.08
-defect_22_flipH.jpg,1,1,60.16,15.21,0.2612,23.91,99,25,Gate 1 (Pure CNN),760.9
-defect_22_flipV.jpg,1,1,53.83,14.97,0.258,23.88,99,25,Gate 1 (Pure CNN),758.62
-defect_22_rot180.jpg,1,1,86.87,14.99,0.258,23.89,99,26,Gate 1 (Pure CNN),717.48
-defect_22_rot270.jpg,1,1,90.25,14.99,0.2588,23.89,99,25,Gate 1 (Pure CNN),781.46
-defect_22_rot90.jpg,1,1,61.47,15.09,0.2596,23.9,99,24,Gate 1 (Pure CNN),743.25
-defect_22_rot90_flipH.jpg,1,1,66.42,14.91,0.2573,23.88,99,25,Gate 1 (Pure CNN),804.66
-defect_23.jpg,1,1,99.25,28.99,0.3992,25.1,99,21,Gate 1 (Pure CNN),580.35
-defect_23_bright_down.jpg,1,1,95.62,23.6,0.3647,24.72,99,17,Gate 1 (Pure CNN),575.16
-defect_23_bright_up.jpg,1,1,99.76,17.5,0.3051,24.23,99,22,Gate 1 (Pure CNN),939.34
-defect_23_flipH.jpg,1,1,99.71,17.32,0.3059,24.24,99,22,Gate 1 (Pure CNN),699.74
-defect_23_flipV.jpg,1,1,95.83,17.71,0.3098,24.28,99,22,Gate 1 (Pure CNN),657.25
-defect_23_rot180.jpg,1,1,99.56,17.97,0.3129,24.31,99,22,Gate 1 (Pure CNN),642.42
-defect_23_rot270.jpg,1,1,94.33,17.51,0.3082,24.27,99,20,Gate 1 (Pure CNN),735.27
-defect_23_rot90.jpg,1,1,95.69,16.9,0.302,24.19,99,21,Gate 1 (Pure CNN),703.0
-defect_23_rot90_flipH.jpg,1,1,97.91,16.84,0.3012,24.19,99,21,Gate 1 (Pure CNN),740.01
-defect_24.jpg,1,1,100.0,33.96,0.4761,26.03,99,22,Gate 1 (Pure CNN),574.61
-defect_24_bright_down.jpg,1,1,100.0,27.91,0.4439,25.67,99,21,Gate 1 (Pure CNN),523.44
-defect_24_bright_up.jpg,1,1,100.0,19.69,0.3427,24.71,99,23,Gate 1 (Pure CNN),974.2
-defect_24_flipH.jpg,1,1,99.99,19.34,0.3459,24.75,99,28,Gate 1 (Pure CNN),621.84
-defect_24_flipV.jpg,1,1,99.99,19.15,0.3451,24.73,99,28,Gate 1 (Pure CNN),688.75
-defect_24_rot180.jpg,1,1,100.0,19.37,0.3467,24.75,99,28,Gate 1 (Pure CNN),723.77
-defect_24_rot270.jpg,1,1,99.99,19.37,0.3475,24.76,99,25,Gate 1 (Pure CNN),573.89
-defect_24_rot90.jpg,1,1,99.98,19.39,0.3475,24.76,99,26,Gate 1 (Pure CNN),552.29
-defect_24_rot90_flipH.jpg,1,1,100.0,18.8,0.3404,24.68,99,25,Gate 1 (Pure CNN),536.71
-normal_21.jpg,0,0,0.14,21.12,0.3443,22.32,89,0,Gate 1 + 2 (Clear),471.25
-normal_21_bright_down.jpg,0,0,0.41,15.87,0.2973,22.28,84,0,Gate 1 + 2 (Clear),565.71
-normal_21_bright_up.jpg,0,0,0.03,12.82,0.2454,22.35,99,0,Gate 1 + 2 (Clear),868.74
-normal_21_flipH.jpg,0,0,0.26,12.5,0.2439,22.31,99,0,Gate 1 + 2 (Clear),702.14
-normal_21_flipV.jpg,0,0,0.05,12.61,0.2463,22.31,99,0,Gate 1 + 2 (Clear),688.08
-normal_21_rot180.jpg,0,0,0.59,12.54,0.2447,22.31,99,0,Gate 1 + 2 (Clear),589.82
-normal_21_rot270.jpg,0,0,0.11,12.21,0.2392,22.31,99,0,Gate 1 + 2 (Clear),652.36
-normal_21_rot90.jpg,0,0,0.79,12.45,0.2431,22.31,99,0,Gate 1 + 2 (Clear),602.31
-normal_21_rot90_flipH.jpg,0,0,0.42,12.19,0.2392,22.31,99,0,Gate 1 + 2 (Clear),802.6
-normal_22.jpg,0,0,0.12,18.31,0.3192,22.32,92,0,Gate 1 + 2 (Clear),635.64
-normal_22_bright_down.jpg,0,0,0.39,13.92,0.2722,22.28,88,0,Gate 1 + 2 (Clear),505.34
-normal_22_bright_up.jpg,0,0,0.03,12.85,0.2447,22.34,99,0,Gate 1 + 2 (Clear),1124.71
-normal_22_flipH.jpg,0,0,0.25,12.49,0.2431,22.31,99,0,Gate 1 + 2 (Clear),638.3
-normal_22_flipV.jpg,0,0,0.04,12.29,0.2392,22.31,99,0,Gate 1 + 2 (Clear),636.31
-normal_22_rot180.jpg,0,0,0.57,12.55,0.2447,22.31,99,0,Gate 1 + 2 (Clear),535.52
-normal_22_rot270.jpg,0,0,0.11,12.23,0.2392,22.31,99,0,Gate 1 + 2 (Clear),540.67
-normal_22_rot90.jpg,0,0,0.72,12.25,0.2392,22.31,99,0,Gate 1 + 2 (Clear),548.74
-normal_22_rot90_flipH.jpg,0,0,0.39,12.22,0.2392,22.31,99,0,Gate 1 + 2 (Clear),561.43
-normal_23.jpg,0,0,0.42,17.3,0.2784,22.29,98,0,Gate 1 + 2 (Clear),384.92
-normal_23_bright_down.jpg,0,0,1.39,15.64,0.2667,22.25,85,0,Gate 1 + 2 (Clear),429.61
-normal_23_bright_up.jpg,0,0,0.13,12.35,0.2102,22.31,99,1,Gate 1 + 2 (Clear),778.9
-normal_23_flipH.jpg,0,0,0.96,12.18,0.2149,22.27,99,0,Gate 1 + 2 (Clear),538.4
-normal_23_flipV.jpg,0,0,0.08,12.02,0.2125,22.27,99,0,Gate 1 + 2 (Clear),536.32
-normal_23_rot180.jpg,0,0,0.74,11.97,0.2118,22.27,99,0,Gate 1 + 2 (Clear),562.71
-normal_23_rot270.jpg,0,0,0.27,12.35,0.2173,22.27,99,0,Gate 1 + 2 (Clear),552.3
-normal_23_rot90.jpg,0,0,1.1,11.96,0.211,22.27,99,0,Gate 1 + 2 (Clear),536.53
-normal_23_rot90_flipH.jpg,0,0,1.22,12.3,0.2157,22.27,99,0,Gate 1 + 2 (Clear),563.36
-normal_24.jpg,0,0,0.25,20.58,0.309,22.26,95,0,Gate 1 + 2 (Clear),441.83
-normal_24_bright_down.jpg,0,0,1.06,17.22,0.2808,22.24,87,0,Gate 1 + 2 (Clear),422.6
-normal_24_bright_up.jpg,0,0,0.09,12.46,0.2243,22.29,99,1,Gate 1 + 2 (Clear),781.01
-normal_24_flipH.jpg,0,0,0.88,12.18,0.2235,22.26,99,0,Gate 1 + 2 (Clear),556.79
-normal_24_flipV.jpg,0,0,0.05,12.07,0.2212,22.26,99,0,Gate 1 + 2 (Clear),574.54
-normal_24_rot180.jpg,0,0,0.44,12.04,0.222,22.26,99,0,Gate 1 + 2 (Clear),581.13
-normal_24_rot270.jpg,0,0,0.17,11.95,0.2196,22.26,99,0,Gate 1 + 2 (Clear),573.6
-normal_24_rot90.jpg,0,0,0.96,12.06,0.2212,22.26,99,0,Gate 1 + 2 (Clear),566.82
-normal_24_rot90_flipH.jpg,0,0,0.85,11.92,0.2196,22.26,99,0,Gate 1 + 2 (Clear),592.55
+defect_21.jpg,1,1,99.95,25.72,0.3686,24.9,99,16,Gate 1 (Pure CNN),500.62
+defect_21_bright_down.jpg,1,1,99.87,19.29,0.3216,24.45,99,15,Gate 1 (Pure CNN),403.73
+defect_21_bright_up.jpg,1,1,99.98,15.87,0.2525,23.91,99,18,Gate 1 (Pure CNN),689.85
+defect_21_flipH.jpg,1,1,99.33,15.91,0.2627,23.99,99,14,Gate 1 (Pure CNN),498.95
+defect_21_flipV.jpg,1,1,99.46,15.43,0.2565,23.94,99,15,Gate 1 (Pure CNN),516.72
+defect_21_rot180.jpg,1,1,99.96,15.52,0.2573,23.95,99,15,Gate 1 (Pure CNN),519.89
+defect_21_rot270.jpg,1,1,99.88,15.34,0.2549,23.92,99,15,Gate 1 (Pure CNN),560.95
+defect_21_rot90.jpg,1,1,98.97,15.23,0.2525,23.91,99,15,Gate 1 (Pure CNN),511.62
+defect_21_rot90_flipH.jpg,1,1,99.98,15.21,0.2525,23.91,99,15,Gate 1 (Pure CNN),519.1
+defect_22.jpg,1,0,24.93,23.68,0.3529,22.39,87,0,Gate 1 + 2 (Clear),415.28
+defect_22_bright_down.jpg,1,0,21.48,18.81,0.3161,22.35,85,0,Gate 1 + 2 (Clear),401.72
+defect_22_bright_up.jpg,1,0,20.56,15.9,0.2627,22.39,99,0,Gate 1 + 2 (Clear),774.53
+defect_22_flipH.jpg,1,1,60.16,15.21,0.2612,23.91,99,25,Gate 1 (Pure CNN),622.36
+defect_22_flipV.jpg,1,1,53.83,14.97,0.258,23.88,99,25,Gate 1 (Pure CNN),561.96
+defect_22_rot180.jpg,1,1,86.87,14.99,0.258,23.89,99,26,Gate 1 (Pure CNN),553.0
+defect_22_rot270.jpg,1,1,90.25,14.99,0.2588,23.89,99,25,Gate 1 (Pure CNN),564.2
+defect_22_rot90.jpg,1,1,61.47,15.09,0.2596,23.9,99,24,Gate 1 (Pure CNN),560.91
+defect_22_rot90_flipH.jpg,1,1,66.42,14.91,0.2573,23.88,99,25,Gate 1 (Pure CNN),565.78
+defect_23.jpg,1,1,99.25,28.99,0.3992,25.1,99,21,Gate 1 (Pure CNN),552.56
+defect_23_bright_down.jpg,1,1,95.62,23.6,0.3647,24.72,99,17,Gate 1 (Pure CNN),494.92
+defect_23_bright_up.jpg,1,1,99.76,17.5,0.3051,24.23,99,22,Gate 1 (Pure CNN),918.56
+defect_23_flipH.jpg,1,1,99.71,17.32,0.3059,24.24,99,22,Gate 1 (Pure CNN),568.82
+defect_23_flipV.jpg,1,1,95.83,17.71,0.3098,24.28,99,22,Gate 1 (Pure CNN),761.57
+defect_23_rot180.jpg,1,1,99.56,17.97,0.3129,24.31,99,22,Gate 1 (Pure CNN),627.45
+defect_23_rot270.jpg,1,1,94.33,17.51,0.3082,24.27,99,20,Gate 1 (Pure CNN),580.77
+defect_23_rot90.jpg,1,1,95.69,16.9,0.302,24.19,99,21,Gate 1 (Pure CNN),658.8
+defect_23_rot90_flipH.jpg,1,1,97.91,16.84,0.3012,24.19,99,21,Gate 1 (Pure CNN),649.38
+defect_24.jpg,1,1,100.0,33.96,0.4761,26.03,99,22,Gate 1 (Pure CNN),456.02
+defect_24_bright_down.jpg,1,1,100.0,27.91,0.4439,25.67,99,21,Gate 1 (Pure CNN),439.3
+defect_24_bright_up.jpg,1,1,100.0,19.69,0.3427,24.71,99,23,Gate 1 (Pure CNN),688.01
+defect_24_flipH.jpg,1,1,99.99,19.34,0.3459,24.75,99,28,Gate 1 (Pure CNN),552.75
+defect_24_flipV.jpg,1,1,99.99,19.15,0.3451,24.73,99,28,Gate 1 (Pure CNN),558.21
+defect_24_rot180.jpg,1,1,100.0,19.37,0.3467,24.75,99,28,Gate 1 (Pure CNN),548.73
+defect_24_rot270.jpg,1,1,99.99,19.37,0.3475,24.76,99,25,Gate 1 (Pure CNN),550.53
+defect_24_rot90.jpg,1,1,99.98,19.39,0.3475,24.76,99,26,Gate 1 (Pure CNN),583.26
+defect_24_rot90_flipH.jpg,1,1,100.0,18.8,0.3404,24.68,99,25,Gate 1 (Pure CNN),586.13
+normal_21.jpg,0,0,0.14,21.12,0.3443,22.32,89,0,Gate 1 + 2 (Clear),373.87
+normal_21_bright_down.jpg,0,0,0.41,15.87,0.2973,22.28,84,0,Gate 1 + 2 (Clear),391.0
+normal_21_bright_up.jpg,0,0,0.03,12.82,0.2454,22.35,99,0,Gate 1 + 2 (Clear),767.82
+normal_21_flipH.jpg,0,0,0.26,12.5,0.2439,22.31,99,0,Gate 1 + 2 (Clear),522.12
+normal_21_flipV.jpg,0,0,0.05,12.61,0.2463,22.31,99,0,Gate 1 + 2 (Clear),594.58
+normal_21_rot180.jpg,0,0,0.59,12.54,0.2447,22.31,99,0,Gate 1 + 2 (Clear),573.98
+normal_21_rot270.jpg,0,0,0.11,12.21,0.2392,22.31,99,0,Gate 1 + 2 (Clear),613.19
+normal_21_rot90.jpg,0,0,0.79,12.45,0.2431,22.31,99,0,Gate 1 + 2 (Clear),590.81
+normal_21_rot90_flipH.jpg,0,0,0.42,12.19,0.2392,22.31,99,0,Gate 1 + 2 (Clear),579.43
+normal_22.jpg,0,0,0.12,18.31,0.3192,22.32,92,0,Gate 1 + 2 (Clear),412.76
+normal_22_bright_down.jpg,0,0,0.39,13.92,0.2722,22.28,88,0,Gate 1 + 2 (Clear),454.81
+normal_22_bright_up.jpg,0,0,0.03,12.85,0.2447,22.34,99,0,Gate 1 + 2 (Clear),901.17
+normal_22_flipH.jpg,0,0,0.25,12.49,0.2431,22.31,99,0,Gate 1 + 2 (Clear),610.14
+normal_22_flipV.jpg,0,0,0.04,12.29,0.2392,22.31,99,0,Gate 1 + 2 (Clear),631.91
+normal_22_rot180.jpg,0,0,0.57,12.55,0.2447,22.31,99,0,Gate 1 + 2 (Clear),497.82
+normal_22_rot270.jpg,0,0,0.11,12.23,0.2392,22.31,99,0,Gate 1 + 2 (Clear),531.05
+normal_22_rot90.jpg,0,0,0.72,12.25,0.2392,22.31,99,0,Gate 1 + 2 (Clear),712.71
+normal_22_rot90_flipH.jpg,0,0,0.39,12.22,0.2392,22.31,99,0,Gate 1 + 2 (Clear),526.78
+normal_23.jpg,0,0,0.42,17.3,0.2784,22.29,98,0,Gate 1 + 2 (Clear),432.19
+normal_23_bright_down.jpg,0,0,1.39,15.64,0.2667,22.25,85,0,Gate 1 + 2 (Clear),445.96
+normal_23_bright_up.jpg,0,0,0.13,12.35,0.2102,22.31,99,1,Gate 1 + 2 (Clear),705.75
+normal_23_flipH.jpg,0,0,0.96,12.18,0.2149,22.27,99,0,Gate 1 + 2 (Clear),558.19
+normal_23_flipV.jpg,0,0,0.08,12.02,0.2125,22.27,99,0,Gate 1 + 2 (Clear),562.28
+normal_23_rot180.jpg,0,0,0.74,11.97,0.2118,22.27,99,0,Gate 1 + 2 (Clear),539.54
+normal_23_rot270.jpg,0,0,0.27,12.35,0.2173,22.27,99,0,Gate 1 + 2 (Clear),538.46
+normal_23_rot90.jpg,0,0,1.1,11.96,0.211,22.27,99,0,Gate 1 + 2 (Clear),549.18
+normal_23_rot90_flipH.jpg,0,0,1.22,12.3,0.2157,22.27,99,0,Gate 1 + 2 (Clear),514.62
+normal_24.jpg,0,0,0.25,20.58,0.309,22.26,95,0,Gate 1 + 2 (Clear),411.53
+normal_24_bright_down.jpg,0,0,1.06,17.22,0.2808,22.24,87,0,Gate 1 + 2 (Clear),401.29
+normal_24_bright_up.jpg,0,0,0.09,12.46,0.2243,22.29,99,1,Gate 1 + 2 (Clear),719.46
+normal_24_flipH.jpg,0,0,0.88,12.18,0.2235,22.26,99,0,Gate 1 + 2 (Clear),550.5
+normal_24_flipV.jpg,0,0,0.05,12.07,0.2212,22.26,99,0,Gate 1 + 2 (Clear),573.15
+normal_24_rot180.jpg,0,0,0.44,12.04,0.222,22.26,99,0,Gate 1 + 2 (Clear),542.26
+normal_24_rot270.jpg,0,0,0.17,11.95,0.2196,22.26,99,0,Gate 1 + 2 (Clear),583.81
+normal_24_rot90.jpg,0,0,0.96,12.06,0.2212,22.26,99,0,Gate 1 + 2 (Clear),618.86
+normal_24_rot90_flipH.jpg,0,0,0.85,11.92,0.2196,22.26,99,0,Gate 1 + 2 (Clear),645.56

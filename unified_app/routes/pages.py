@@ -14,19 +14,30 @@ pages_bp = Blueprint("pages", __name__)
 
 
 @pages_bp.route("/")
+@pages_bp.route("/landing")
+def landing_page():
+    return render_template("landing.html")
+
+
 @pages_bp.route("/overview")
 def overview():
     return render_template("index.html", initial_view="overview")
 
 
-@pages_bp.route("/inspection/bearing")
-def bearing_workspace():
-    return render_template("index.html", initial_view="bearing")
+@pages_bp.route("/dashboard")
+def dashboard_page():
+    return render_template("dashboard.html")
 
 
+@pages_bp.route("/inspection")
 @pages_bp.route("/inspection/ring")
 def ring_workspace():
     return render_template("index.html", initial_view="ring")
+
+
+@pages_bp.route("/inspection/bearing")
+def bearing_workspace():
+    return render_template("index.html", initial_view="bearing")
 
 
 @pages_bp.route("/inspection/plastic")

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Automated Visual Inspection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body>
+  <!-- Unified Navbar (Identical across Home, Dashboard, and Inspection) -->
+  <header class="app-navbar">
+    <a href="/" class="nav-brand-group" style="text-decoration: none;">
+      <div class="brand-title-box">
+        <h1 class="brand-main-title">Automated Visual Inspection</h1>
+        <span class="brand-sub-tag">CNN Surface Defect Metrology</span>
+      </div>
+    </a>
+
+    <nav class="nav-tabs-container">
+      <a href="/" class="nav-tab-btn" style="text-decoration: none;">Home</a>
+      <a href="/dashboard" class="nav-tab-btn active" style="text-decoration: none;">Dashboard</a>
+      <a href="/inspection/ring" class="nav-tab-btn" style="text-decoration: none;">Inspection</a>
+    </nav>
+
+    <div class="nav-right-actions">
+      <span class="health-badge" id="dashHealthBadge">Checking...</span>
+      <button type="button" class="btn-refresh" onclick="loadDashboardHealth()">↻ Refresh</button>
+    </div>
+  </header>
+
+  <main class="dash-container">
+    <!-- 1. Overall KPI Summary -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Active Models</div>
+        <div class="kpi-value" id="kpiReady">- / 3</div>
+        <div class="kpi-sub" id="kpiReadySub">Checking model registry...</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ring Test Accuracy</div>
+        <div class="kpi-value" style="color: #059669;">95.83%</div>
+        <div class="kpi-sub">Precision 100.0% • Recall 91.67%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Bearing Test Accuracy</div>
+        <div class="kpi-value" style="color: #2563EB;">92.80%</div>
+        <div class="kpi-sub">Macro F1 92.80% • Recall 95.20%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">API Response Ping</div>
+        <div class="kpi-value" id="kpiPing">- ms</div>
+        <div class="kpi-sub">/api/v1/health &amp; /modules</div>
+      </div>
+    </section>
+
+    <!-- 2. Model & Training Metrics per Object (No inspection buttons here) -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Model &amp; Training Metrics Summary</h2>
+        <p class="panel-sub">Quantitative training parameters and evaluation metrics across Ring, Bearing, and Plastic.</p>
+      </div>
+
+      <div class="modules-grid">
+        <!-- Ring -->
+        <div class="mod-box">
+          <div class="mod-top">
+            <div>
+              <div class="mod-name">Ring</div>
+              <div class="mod-cat">Pure 7-Stage CNN (PyTorch)</div>
+            </div>
+            <span class="badge-ready" id="badgeRing">READY</span>
+          </div>
+          <div class="metric-rows">
+            <div class="metric-row"><span>Input Resolution</span><span>512 × 512 CLAHE</span></div>
+            <div class="metric-row"><span>Epochs / Batch</span><span>20 / 16</span></div>
+            <div class="metric-row"><span>Optimizer / LR</span><span>Adam / 1e-3</span></div>
+            <div class="metric-row"><span>Test Samples</span><span>72 (36 Defect, 36 Normal)</span></div>
+            <div class="metric-row"><span>Test Accuracy</span><span style="color:#059669;">95.83%</span></div>
+            <div class="metric-row"><span>Precision / Recall</span><span>100.00% / 91.67%</span></div>
+            <div class="metric-row"><span>F1-Score</span><span>95.65%</span></div>
+          </div>
+        </div>
+
+        <!-- Bearing -->
+        <div class="mod-box">
+          <div class="mod-top">
+            <div>
+              <div class="mod-name">Bearing</div>
+              <div class="mod-cat">Pure-NumPy Sequential CNN</div>
+            </div>
+            <span class="badge-ready" id="badgeBearing">READY</span>
+          </div>
+          <div class="metric-rows">
+            <div class="metric-row"><span>Input Resolution</span><span>64 × 64 Grayscale</span></div>
+            <div class="metric-row"><span>Epochs / Batch</span><span>10 / 32</span></div>
+            <div class="metric-row"><span>Optimizer / LR</span><span>Adam / 0.002</span></div>
+            <div class="metric-row"><span>Train / Test Samples</span><span>2,500 / 500</span></div>
+            <div class="metric-row"><span>Test Accuracy</span><span style="color:#2563EB;">92.80%</span></div>
+            <div class="metric-row"><span>Defective Prec / Rec</span><span>90.84% / 95.20%</span></div>
+            <div class="metric-row"><span>Macro F1-Score</span><span>92.80%</span></div>
+          </div>
+        </div>
+
+        <!-- Plastic -->
+        <div class="mod-box">
+          <div class="mod-top">
+            <div>
+              <div class="mod-name">Plastic</div>
+              <div class="mod-cat">Single-Class FPN CNN (PyTorch)</div>
+            </div>
+            <span class="badge-ready" id="badgePlastic">READY</span>
+          </div>
+          <div class="metric-rows">
+            <div class="metric-row"><span>Input Canvas</span><span>768 × 768 Scale-Preserved</span></div>
+            <div class="metric-row"><span>Head Architecture</span><span>Center + Geometry Heads</span></div>
+            <div class="metric-row"><span>Confidence Threshold</span><span>0.278</span></div>
+            <div class="metric-row"><span>NMS IoU Threshold</span><span>0.45</span></div>
+            <div class="metric-row"><span>Random Seed</span><span>42</span></div>
+            <div class="metric-row"><span>Torch / NumPy</span><span>2.14.1 / 2.4.6</span></div>
+            <div class="metric-row"><span>Output Mode</span><span>BBox + Defect Table</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/health_monitor.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+
+</html>

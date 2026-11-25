@@ -273,7 +273,7 @@ class TestUnifiedInspectionQA(unittest.TestCase):
         Verifies that the rendered HTML contains all required DOM containers and
         interactive element IDs used by app.js, ring.js, and bearing.js.
         """
-        res = self.client.get("/")
+        res = self.client.get("/inspection/ring")
         self.assertEqual(res.status_code, 200)
         html = res.get_data(as_text=True)
 

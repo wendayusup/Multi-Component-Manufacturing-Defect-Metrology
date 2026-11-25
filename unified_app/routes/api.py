@@ -10,7 +10,7 @@ import time
 import base64
 import random
 from pathlib import Path
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, Response
 from ..services.model_registry import get_model_registry
 from ..config import WORKSPACE_ROOT, RING_DIR, CASTING_DIR, PLASTIC_DIR
 
@@ -333,6 +333,14 @@ def get_ring_analytics(analytic_type):
         p = results_dir / "03_training_history.png"
         if p.exists():
             return send_file(str(p), mimetype="image/png")
+    elif analytic_type == "correlation_matrix":
+        p = results_dir / "ring_correlation_matrix.png"
+        if p.exists():
+            return send_file(str(p), mimetype="image/png")
+    elif analytic_type == "statistical_dashboard":
+        p = results_dir / "ring_statistical_dashboard.png"
+        if p.exists():
+            return send_file(str(p), mimetype="image/png")
     elif analytic_type == "s2_report":
         return jsonify({
             "status": "success",
@@ -356,3 +364,77 @@ def get_ring_analytics(analytic_type):
         })
 
     return jsonify({"error": "Analytic resource not found"}), 404
+
+
+_SHOWCASE_CACHE = {}
+
+
+def _find_first_sample_bytes(module_id: str, is_defect_sample: bool):
+    """Finds a deterministic sample image from dataset/model_development for showcase."""
+    if module_id == "ring":
+        subfolder = "defect_ring" if is_defect_sample else "normal_ring"
+        sample_sub = "defect" if is_defect_sample else "normal"
+        folders = [
+            Path.cwd() / "dataset" / "ring" / sample_sub,
+            WORKSPACE_ROOT / "dataset" / "ring" / sample_sub,
+            RING_DIR / "dataset_split" / "test" / subfolder,
+        ]
+    elif module_id == "bearing":
+        subfolder = "def_front" if is_defect_sample else "ok_front"
+        sample_sub = "defect" if is_defect_sample else "normal"
+        folders = [
+            Path.cwd() / "dataset" / "bearing" / sample_sub,
+            WORKSPACE_ROOT / "dataset" / "bearing" / sample_sub,
+            CASTING_DIR / "casting_512x512" / "casting_512x512" / subfolder,
+        ]
+    elif module_id == "plastic":
+        subfolder = "defect" if is_defect_sample else "normal"
+        folders = [
+            Path.cwd() / "dataset" / "plastic" / subfolder,
+            WORKSPACE_ROOT / "dataset" / "plastic" / subfolder,
+            PLASTIC_DIR / "dataset" / "test" / subfolder,
+        ]
+    else:
+        return None
+
+    for folder in folders:
+        if folder.exists():
+            files = sorted(
+                list(folder.glob("*.jpg")) + list(folder.glob("*.jpeg")) + list(folder.glob("*.png"))
+            )
+            if files:
+                return files[0].read_bytes()
+    return None
+
+
+@api_bp.route("/showcase/<module_id>/<sample_type>", methods=["GET"])
+def get_inspected_showcase(module_id, sample_type):
+    """
+    Runs real inspection on a dataset sample (defect or normal) and returns
+    the annotated/inspected JPEG image, cached in memory for fast gallery sliding.
+    """
+    mod_id = (module_id or "").lower()
+    st_clean = (sample_type or "").lower()
+    if mod_id not in ("ring", "bearing", "plastic") or st_clean not in ("defect", "normal"):
+        return jsonify({"error": "Invalid showcase module or sample type"}), 404
+
+    cache_key = (mod_id, st_clean)
+    if cache_key in _SHOWCASE_CACHE:
+        return Response(_SHOWCASE_CACHE[cache_key], mimetype="image/jpeg")
+
+    img_bytes = _find_first_sample_bytes(mod_id, is_defect_sample=(st_clean == "defect"))
+    if not img_bytes:
+        return jsonify({"error": "Sample image not found"}), 404
+
+    adapter = get_model_registry().get_adapter(mod_id)
+    if not adapter:
+        return jsonify({"error": "Adapter not found"}), 404
+    result = adapter.inspect(img_bytes)
+    data_url = result.get("annotated_image") or result.get("original_image")
+    if data_url and "," in data_url:
+        out_bytes = base64.b64decode(data_url.split(",", 1)[1])
+    else:
+        out_bytes = img_bytes
+
+    _SHOWCASE_CACHE[cache_key] = out_bytes
+    return Response(out_bytes, mimetype="image/jpeg")

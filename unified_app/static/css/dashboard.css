@@ -1,0 +1,200 @@
+/*
+ * DASHBOARD.CSS — Clean Operational Dashboard (Inherits base.css)
+ */
+html, body {
+  height: auto !important;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  font-weight: 400;
+}
+
+.health-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 400;
+  background: var(--color-pass-bg);
+  color: var(--color-pass);
+}
+
+.btn-refresh {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+.btn-refresh:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Layout */
+.dash-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* KPI Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kpi-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-subtle);
+}
+
+.kpi-label {
+  font-size: 0.73rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-value {
+  font-size: 1.48rem;
+  font-weight: 500;
+  margin: 6px 0 4px;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-sub {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* Section Card */
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.panel-header { margin-bottom: 18px; }
+.panel-title { font-size: 1rem; font-weight: 500; color: var(--color-text-primary); }
+.panel-sub { font-size: 0.8rem; font-weight: 400; color: var(--color-text-muted); }
+
+/* Module Cards */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.mod-box {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mod-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mod-name { font-size: 0.94rem; font-weight: 500; color: var(--color-text-primary); }
+.mod-cat { font-size: 0.75rem; font-weight: 400; color: var(--color-text-muted); }
+
+.badge-ready {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--color-pass-bg);
+  color: var(--color-pass);
+}
+
+.badge-err {
+  background: var(--color-reject-bg);
+  color: var(--color-reject);
+}
+
+.mod-meta,
+.metric-rows {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.metric-row span:first-child {
+  color: var(--color-text-muted);
+}
+
+.cap-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cap-chip {
+  font-size: 0.68rem;
+  font-weight: 400;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #FFFFFF;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.btn-open-mod {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #FFFFFF;
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-decoration: none;
+}
+.btn-open-mod:hover { background: var(--primary-hover); }
+
+@media (max-width: 1024px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .modules-grid { grid-template-columns: 1fr; }
+}

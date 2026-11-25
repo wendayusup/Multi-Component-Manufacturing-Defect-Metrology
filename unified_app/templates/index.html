@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Automated Visual Inspection — Stasiun Metrologi Cacat Manufaktur</title>
 
-  <!-- Google Font: Poppins (Clean, Modern, Enterprise Legibility) -->
+  <!-- Google Font: Poppins Regular & Medium -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
 
   <!-- ======================================================================= -->
   <!-- MODULAR CSS STYLESHEETS                                                 -->
@@ -22,6 +22,16 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bearing.css') }}">
   <!-- 4. Plastic Module Specific Styles (Owned by Plastic Team) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plastic.css') }}">
+  <!-- 5. Enforce uniform Poppins Regular (400/500) matching Home & Dashboard -->
+  <style>
+    body, body * {
+      font-weight: 400 !important;
+    }
+    h1, h2, h3, .brand-main-title, .nav-tab-btn.active,
+    .card-title, .vp-title, .decision-txt, .kpi-val, .badge-ready {
+      font-weight: 500 !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -30,12 +40,12 @@
   <!-- 1. TOP NAVBAR (Modern SaaS Header - Pure White, High Legibility)         -->
   <!-- ========================================================================= -->
   <header class="app-navbar">
-    <div class="nav-brand-group">
+    <a href="/" class="nav-brand-group" style="text-decoration: none;">
       <div class="brand-title-box">
         <h1 class="brand-main-title">Automated Visual Inspection</h1>
         <span class="brand-sub-tag">Stasiun Metrologi Cacat Manufaktur</span>
       </div>
-    </div>
+    </a>
 
     <!-- 3 MODULE NAVIGATION TABS: RING, BEARING, PLASTIC -->
     <nav class="nav-tabs-container">
@@ -50,8 +60,14 @@
       </button>
     </nav>
 
-    <!-- RIGHT ACTIONS: Keeps 50% navbar centering balanced -->
-    <div class="nav-right-actions"></div>
+    <!-- RIGHT ACTIONS: System Health + Consistent navigation back to Home & Dashboard -->
+    <div class="nav-right-actions">
+      <span class="health-badge" id="inspectHealthBadge">Checking...</span>
+      <div class="nav-pill-group">
+        <a href="/" class="nav-pill-link">Home</a>
+        <a href="/dashboard" class="nav-pill-link">Dashboard</a>
+      </div>
+    </div>
   </header>
 
   <!-- ========================================================================= -->
@@ -91,6 +107,8 @@
   <script src="{{ url_for('static', filename='js/bearing.js') }}"></script>
   <!-- 4. Plastic Module Controller (Plastic Inspection Logic) -->
   <script src="{{ url_for('static', filename='js/plastic.js') }}"></script>
+  <!-- 5. Shared Live Server & Network Signal Monitor -->
+  <script src="{{ url_for('static', filename='js/health_monitor.js') }}"></script>
 
 </body>
 

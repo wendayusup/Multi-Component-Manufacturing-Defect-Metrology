@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNN Visual Inspection — Automated Surface Metrology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+
+<body>
+  <!-- Unified Navbar (Identical across Landing, Dashboard, and Inspection) -->
+  <header class="app-navbar">
+    <a href="/" class="nav-brand-group" style="text-decoration: none;">
+      <div class="brand-title-box">
+        <h1 class="brand-main-title" style="font-weight: 500;">Automated Visual Inspection</h1>
+        <span class="brand-sub-tag" style="font-weight: 400;">CNN Surface Defect Metrology</span>
+      </div>
+    </a>
+
+    <nav class="nav-tabs-container">
+      <a href="/" class="nav-tab-btn active" style="text-decoration: none;">Home</a>
+      <a href="/dashboard" class="nav-tab-btn" style="text-decoration: none;">Dashboard</a>
+      <a href="/inspection/ring" class="nav-tab-btn" style="text-decoration: none;">Inspection</a>
+    </nav>
+
+    <div class="nav-right-actions">
+      <span class="health-badge" id="homeHealthBadge">Checking...</span>
+    </div>
+  </header>
+
+  <main class="studio-main">
+    <section class="studio-hero">
+      <div class="studio-eyebrow">Convolutional Neural Network • Visual Quality Control</div>
+      <h1 class="studio-title">CNN-Based Automated Visual Inspection</h1>
+      <p class="studio-subtitle">
+        Real-time defect inspection showcase across Ring, Bearing, and Plastic datasets.
+      </p>
+    </section>
+
+    <!-- Photo-Studio Swipeable Inspected Dataset Gallery -->
+    <section class="gallery-wrapper" aria-label="Inspected Dataset Showcase">
+      <button type="button" class="studio-arrow prev" onclick="moveSlide(-1)" aria-label="Previous slide">&#8249;</button>
+      <button type="button" class="studio-arrow next" onclick="moveSlide(1)" aria-label="Next slide">&#8250;</button>
+
+      <div class="gallery-viewport" id="galleryViewport">
+        <div class="gallery-track" id="galleryTrack">
+          <div class="gallery-slide">
+            <img class="gallery-img" src="/api/showcase/ring/defect" alt="Ring Defect Inspected">
+            <div class="gallery-caption">
+              <span class="caption-badge badge-defect">REJECT (DEFECT)</span>
+              <div class="caption-title">Ring — Defect Inspection</div>
+              <div class="caption-meta">Pure 7-Stage CNN (512×512 CLAHE) + Disparity Matrix Bounding Boxes</div>
+            </div>
+          </div>
+
+          <div class="gallery-slide">
+            <img class="gallery-img" src="/api/showcase/ring/normal" alt="Ring Normal Inspected">
+            <div class="gallery-caption">
+              <span class="caption-badge badge-normal">PASS (NORMAL)</span>
+              <div class="caption-title">Ring — Normal Inspection</div>
+              <div class="caption-meta">Pure 7-Stage CNN + Dual-Gate Metrology Clearance</div>
+            </div>
+          </div>
+
+          <div class="gallery-slide">
+            <img class="gallery-img" src="/api/showcase/bearing/defect" alt="Bearing Defect Inspected">
+            <div class="gallery-caption">
+              <span class="caption-badge badge-defect">REJECT (DEFECT)</span>
+              <div class="caption-title">Bearing — Defect Inspection</div>
+              <div class="caption-meta">Pure-NumPy Sequential CNN (64×64) + Status Badge</div>
+            </div>
+          </div>
+
+          <div class="gallery-slide">
+            <img class="gallery-img" src="/api/showcase/bearing/normal" alt="Bearing Normal Inspected">
+            <div class="gallery-caption">
+              <span class="caption-badge badge-normal">PASS (NORMAL)</span>
+              <div class="caption-title">Bearing — Normal Inspection</div>
+              <div class="caption-meta">Pure-NumPy Sequential CNN Quality-Gated Clearance</div>
+            </div>
+          </div>
+
+          <div class="gallery-slide">
+            <img class="gallery-img" src="/api/showcase/plastic/defect" alt="Plastic Defect Inspected">
+            <div class="gallery-caption">
+              <span class="caption-badge badge-defect">REJECT (DEFECT)</span>
+              <div class="caption-title">Plastic — Defect Inspection</div>
+              <div class="caption-meta">Single-Class FPN CNN (768×768) + Geometry &amp; NMS Localization</div>
+            </div>
+          </div>
+
+          <div class="gallery-slide">
+            <img class="gallery-img" src="/api/showcase/plastic/normal" alt="Plastic Normal Inspected">
+            <div class="gallery-caption">
+              <span class="caption-badge badge-normal">PASS (NORMAL)</span>
+              <div class="caption-title">Plastic — Normal Inspection</div>
+              <div class="caption-meta">Single-Class FPN CNN Verification</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-controls" id="galleryDots">
+        <button type="button" class="gallery-dot active" onclick="goToSlide(0)" aria-label="Slide 1"></button>
+        <button type="button" class="gallery-dot" onclick="goToSlide(1)" aria-label="Slide 2"></button>
+        <button type="button" class="gallery-dot" onclick="goToSlide(2)" aria-label="Slide 3"></button>
+        <button type="button" class="gallery-dot" onclick="goToSlide(3)" aria-label="Slide 4"></button>
+        <button type="button" class="gallery-dot" onclick="goToSlide(4)" aria-label="Slide 5"></button>
+        <button type="button" class="gallery-dot" onclick="goToSlide(5)" aria-label="Slide 6"></button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="studio-footer">
+    CNN Visual Inspection • Ring • Bearing • Plastic
+  </footer>
+
+  <script>
+    let currentIndex = 0;
+    const totalSlides = 6;
+    const track = document.getElementById('galleryTrack');
+    const dots = document.querySelectorAll('.gallery-dot');
+
+    function updateGallery() {
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentIndex));
+    }
+
+    function moveSlide(step) {
+      currentIndex = (currentIndex + step + totalSlides) % totalSlides;
+      updateGallery();
+    }
+
+    function goToSlide(idx) {
+      currentIndex = idx;
+      updateGallery();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') moveSlide(1);
+      if (e.key === 'ArrowLeft') moveSlide(-1);
+    });
+
+    let touchStartX = 0;
+    const viewport = document.getElementById('galleryViewport');
+    viewport.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    viewport.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) moveSlide(diff > 0 ? 1 : -1);
+    }, { passive: true });
+  </script>
+  <script src="{{ url_for('static', filename='js/health_monitor.js') }}"></script>
+</body>
+
+</html>
