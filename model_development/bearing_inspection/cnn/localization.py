@@ -221,8 +221,8 @@ def locate_defects(
 
 def generate_annotated_image_base64(image: Image.Image, localization: Dict) -> Optional[str]:
     """
-    Renders visual bounding boxes, center marker dots, and defect tags
-    directly onto the image, returning a Base64-encoded JPEG data URL.
+    Renders a clean status badge onto the image (without bounding boxes or
+    marker dots), returning a Base64-encoded JPEG data URL.
     """
     if not localization.get("has_defect"):
         return None
@@ -231,31 +231,18 @@ def generate_annotated_image_base64(image: Image.Image, localization: Dict) -> O
     draw = ImageDraw.Draw(annotated)
 
     boxes = localization.get("boxes", [])
-    points = localization.get("points", [])
+    if boxes:
+        top_conf = max(b.get("confidence", 0.0) for b in boxes) * 100.0
+        status_text = f"DEFECTIVE ({top_conf:.1f}%)"
+    else:
+        status_text = "DEFECTIVE"
 
-    # 1. Draw Bounding Boxes
-    for box in boxes:
-        x0, y0 = box["x"], box["y"]
-        x1, y1 = x0 + box["width"], y0 + box["height"]
-
-        # Outer bold red bounding box
-        draw.rectangle([x0, y0, x1, y1], outline=(239, 68, 68), width=3)
-
-        # Label banner
-        label_text = f"{box['label']} ({box['confidence']*100:.1f}%)"
-        tag_w = len(label_text) * 7 + 8
-        tag_h = 18
-        tag_y0 = max(0, y0 - tag_h - 2)
-        draw.rectangle([x0, tag_y0, x0 + tag_w, tag_y0 + tag_h], fill=(239, 68, 68))
-        draw.text((x0 + 4, tag_y0 + 2), label_text, fill=(255, 255, 255))
-
-    # 2. Draw Marker Dots (Hanya titik pusat fokus utama)
-    for pt in points:
-        px, py = pt["x"], pt["y"]
-        if pt.get("type") == "peak":
-            # Primary peak dot: kuning dengan rim merah tipis
-            r = 4
-            draw.ellipse([px - r, py - r, px + r, py + r], fill=(245, 158, 11), outline=(220, 38, 38), width=2)
+    # Clean top-left status badge (no bounding boxes or red dots)
+    pad_x, pad_y = 10, 10
+    tag_w = len(status_text) * 7 + 14
+    tag_h = 22
+    draw.rectangle([pad_x, pad_y, pad_x + tag_w, pad_y + tag_h], fill=(239, 68, 68))
+    draw.text((pad_x + 7, pad_y + 5), status_text, fill=(255, 255, 255))
 
     # Export to base64 JPEG
     buffer = io.BytesIO()
@@ -400,15 +387,6 @@ def render_surface_anomaly_matrix(
     for label_pct in [0.0, 0.25, 0.5, 0.75, 1.0]:
         label_y = HMAP_Y + int((1.0 - label_pct) * CBAR_H)
         draw.text((CBAR_X + CBAR_W + 2, label_y - 5), f"{label_pct:.1f}", fill=(60, 60, 60))
-
-    # --- Peak marker dot (yellow) ---
-    if peak_spot is not None:
-        pr, pc = peak_spot
-        dot_x = HMAP_X + int(pc * HMAP_SIZE / 128)
-        dot_y = HMAP_Y + int(pr * HMAP_SIZE / 128)
-        rr = 5
-        draw.ellipse([dot_x - rr, dot_y - rr, dot_x + rr, dot_y + rr],
-                     fill=(255, 230, 0), outline=(220, 50, 50), width=2)
 
     return canvas
 
